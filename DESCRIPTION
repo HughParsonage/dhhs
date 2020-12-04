@@ -1,0 +1,20 @@
+Package: dhhs
+Type: Package
+Title: Handle Common Tasks at the Department of Health and Human Services ('DHHS'), Victoria, Australia
+Version: 0.4.0
+Date: 2020-12-01
+Authors@R: c(person("Hugh", "Parsonage", role = c("aut", "cre"), email = "hugh.parsonage@gmail.com"))
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    data.table,
+    magrittr,
+    glue,
+    utils
+RoxygenNote: 7.1.1
+Suggests: 
+    fst,
+    dplyr
