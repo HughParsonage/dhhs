@@ -3,6 +3,8 @@
 export(read_sitrep)
 export(sitrep_file)
 import(data.table)
+importFrom(glue,glue)
 importFrom(magrittr,"%>%")
 importFrom(stats,setNames)
+importFrom(utils,adist)
 importFrom(utils,hasName)

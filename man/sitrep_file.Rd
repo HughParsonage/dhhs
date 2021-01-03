@@ -5,12 +5,11 @@
 \title{Sitrep file}
 \usage{
 sitrep_file(
-  view = c("linelist", "AdmitTimeline", "AllClusters", "CaseLinks", "CasesCluster",
-    "ClusterSites", "Comorbidities", "ContactDates", "Contacts", "Daneetable",
-    "EventLog", "EventStatus", "labresults", "MonitoringLogging",
-    "MonitoringLoggingComplete", "Persons", "Presentations", "SITREPTable", "status"),
+  view = .views_avbl(),
   previous = FALSE,
   latest = FALSE,
+  data_source = NULL,
+  request_time = Sys.time(),
   fst = FALSE,
   must_exist = !fst,
   exact = FALSE
@@ -28,6 +27,15 @@ is chosen, with a message.}
 
 \item{previous, latest}{(TRUE or FALSE, default: \code{FALSE}) Should the previous/latest
 day's file be returned?}
+
+\item{data_source}{Which data to use?  One of \code{"today"}, \code{"previous"},
+\code{"latest"}, or \code{"hour"}.
+
+By default, the values of \code{previous,latest} are used. If \code{data_source}
+is not \code{NULL} it takes priority.}
+
+\item{request_time}{(\code{POSIXct(1)}) The time requested, for the purposes
+of identifying and invalidating existing caches.}
 
 \item{fst}{(TRUE or FALSE, default: \code{FALSE}) Should the \code{.fst}
 version be returned. If \code{FALSE}, the default, the path returned is the

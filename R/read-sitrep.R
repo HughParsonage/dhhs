@@ -15,6 +15,15 @@
 #'
 #' @param previous,latest (TRUE or FALSE, default: \code{FALSE}) Should the previous/latest
 #' day's file be returned?
+#' @param data_source Which data to use?  One of \code{"today"}, \code{"previous"},
+#' \code{"latest"}, or \code{"hour"}.
+#'
+#' By default, the values of \code{previous,latest} are used. If \code{data_source}
+#' is not \code{NULL} it takes priority.
+#'
+#' @param request_time (\code{POSIXct(1)}) The time requested, for the purposes
+#' of identifying and invalidating existing caches.
+#'
 #' @param fst (TRUE or FALSE, default: \code{FALSE}) Should the \code{.fst}
 #' version be returned. If \code{FALSE}, the default, the path returned is the
 #' standard \code{.txt} delimited/flat file.
@@ -42,27 +51,11 @@
 #'
 #'
 #' @export
-sitrep_file <- function(view = c("linelist",
-                                 "AdmitTimeline",
-                                 "AllClusters",
-                                 "CaseLinks",
-                                 "CasesCluster",
-                                 "ClusterSites",
-                                 "Comorbidities",
-                                 "ContactDates",
-                                 "Contacts",
-                                 "Daneetable",
-                                 "EventLog",
-                                 "EventStatus",
-                                 "labresults",
-                                 "MonitoringLogging",
-                                 "MonitoringLoggingComplete",
-                                 "Persons",
-                                 "Presentations",
-                                 "SITREPTable",
-                                 "status"),
+sitrep_file <- function(view = .views_avbl(),
                         previous = FALSE,
                         latest = FALSE,
+                        data_source = NULL,
+                        request_time = Sys.time(),
                         fst = FALSE,
                         must_exist = !fst,
                         exact = FALSE) {
@@ -73,21 +66,56 @@ sitrep_file <- function(view = c("linelist",
       file.exists(view)) {
     return(view)
   }
-  .views_avbl <- get_choices(view)
-
-  FileDateToday <-
-    if (hour(Sys.time()) < 6) {
-      warning("Early hours of the morning - 'current day' will be interpreted as yesterday.")
-      format(Sys.Date() - 1L, "%Y%m%d")
-    } else {
-      format(Sys.Date(), "%Y%m%d")
-    }
-  FileDateYesterday <- format(Sys.Date() - 1L, "%Y%m%d")
-  hhss <- format(Sys.time(), "%H%S")
+  force(request_time)
+  stopifnot(inherits(request_time, "POSIXct"),
+            length(request_time) == 1L)
+  request_time <- as.POSIXlt(request_time, tz = "Australia/Sydney")
 
   check_TF(previous)
   check_TF(fst)
   check_TF(must_exist)
+
+  .views_avbl <- .views_avbl()
+
+  if (is.null(data_source)) {
+    if (previous) {
+      data_source <- "previous"
+    } else if (latest) {
+      data_source <- "latest"
+    } else {
+      data_source <- "today"
+    }
+  }
+  switch(data_source,
+         "previous" = {
+           previous <- TRUE
+           latest <- FALSE
+         },
+         "latest" = {
+           latest <- TRUE
+           previous <- FALSE
+         },
+         "today" = {
+           latest <- FALSE
+           previous <- FALSE
+         })
+
+  Today_Date <- as.Date(request_time)
+
+  Today <-
+    if (hour(request_time) < 6) {
+      if (data_source == "today") {
+        warning("Early hours of the morning - 'current day' will be interpreted as yesterday.")
+      }
+      format(Today_Date - 1L, "%Y%m%d")
+    } else {
+      format(Today_Date, "%Y%m%d")
+    }
+  Yesterday <- format(Today_Date - 1L, "%Y%m%d")
+  hh <- format(request_time, "%H")
+  hhmm <- format(request_time, "%H%M")
+
+
   if (fst) {
     fst_dir <- Sys.getenv("R_DHHS_SITREP_FST_TRUNK")
     if (fst_dir == "") {
@@ -98,22 +126,22 @@ sitrep_file <- function(view = c("linelist",
       }
     }
     provide.dir(fst_dir)
-    if (previous) {
-      outd <- g("{fst_dir}/{FileDateYesterday}/")
-    } else if (latest) {
-      outd <- g("{fst_dir}/{FileDateToday}/{hhss}/")
-    } else {
-      outd <- g("{fst_dir}/{FileDateToday}/")
-    }
+    outd <-
+      switch(data_source,
+             "previous" = g("{fst_dir}/{Yesterday}/"),
+             "today" = g("{fst_dir}/{Today}/"),
+             "hour" = g("{fst_dir}/{Today}/{hh}"),
+             "latest" = g("{fst_dir}/{Today}/{hhmm}"))
   } else {
-
-    if (previous) {
-      outd <- "E:/PBIX/NCoronavirus 2020/Stata nCoV reporting/31 Azure Data Model/DART/Data snapshots/sitrep-previous/"
-    } else if (latest) {
-      outd <- "E:/PBIX/NCoronavirus 2020/Stata nCoV reporting/31 Azure Data Model/DART/Data snapshots/latest/"
-    } else {
-      outd <- "E:/PBIX/NCoronavirus 2020/Stata nCoV reporting/31 Azure Data Model/DART/Data snapshots/sitrep/"
-    }
+    tail_dir <-
+      switch(data_source,
+             "previous" = "sitrep-previous",
+             "today" = "sitrep",
+             "latest" = "latest",
+             "hour" = "latest")
+    outd <-
+      file.path("E:/PBIX/NCoronavirus 2020/Stata nCoV reporting/31 Azure Data Model/DART/Data snapshots",
+                tail_dir)
   }
 
   if (missing(view)) {
@@ -123,7 +151,6 @@ sitrep_file <- function(view = c("linelist",
       stop("length(view) = ", length(view), ", but must be length-one.")
     }
     if (view %notin% .views_avbl) {
-
       orig.view <- copy(view)
       # Check for simply the wrong case
       if (VIEW_MATCH <- match(toupper(view), toupper(.views_avbl), nomatch = 0L)) {
@@ -132,7 +159,7 @@ sitrep_file <- function(view = c("linelist",
           stop(g("`exact = TRUE`, and `view = {orig.view}`. So stopping, as requested."), "\n",
                g("(Did you mean '{view}'?)"))
         }
-        message(g("Changing `view = {orig.view}` to `view`."))
+        message(g("Changing `view = '{orig.view}'` to '{view}'."))
       } else {
         # don't need full names
         files.outd <- dir(path = outd)
@@ -168,6 +195,12 @@ sitrep_file <- function(view = c("linelist",
 #' DRY violations throughout; hopefully with performance.
 #' @return A \code{data.table} sourced from the requested sitrep file.
 #' @param view,prev,latest As in `sitrep_file()` above.
+#' @param data_source Which data to use?  One of \code{"today"}, \code{"previous"},
+#' \code{"latest"}, or \code{"hour"}.
+#'
+#' By default, the values of \code{previous,latest} are used. If \code{data_source}
+#' is not \code{NULL} it takes priority.
+#'
 #' @param excl_diag_today (TRUE or FALSE, default: \code{TRUE}) Should
 #' rows where \code{DiagnosisDate >= today()} be dropped? Has no effect
 #' if the requested file has no such column.
@@ -183,10 +216,15 @@ sitrep_file <- function(view = c("linelist",
 #' @param verbose Be chatty and report the output from \code{fread(..., verbose = TRUE)}?
 #' @param reset_cache If \code{TRUE}, saved \code{fst} files will be deleted. Useful
 #' if the original files have been updated, or if the \code{fst} file had problems.
+
+#' @param exact \code{FALSE | TRUE} If \code{TRUE}, then \code{view} must match exactly,
+#' (up to file extensions).
+
 #' @export
 read_sitrep <- function(view,
                         prev = FALSE,
                         latest = FALSE,
+                        data_source = NULL,
                         excl_diag_today = TRUE,
                         use_fst = getOption("dhhs.use_fst", TRUE),
                         columns = NULL,
@@ -197,11 +235,24 @@ read_sitrep <- function(view,
   check_TF(use_fst)
   check_TF(excl_diag_today)
   check_TF(reset_cache)
+  check_TF(prev)
+  check_TF(latest)
+
+  if (is.null(data_source)) {
+    if (prev) {
+      data_source <- "previous"
+    } else if (latest) {
+      data_source <- "latest"
+    } else {
+      data_source <- "today"
+    }
+  }
 
   view.fst <-
     sitrep_file(view,
                 previous = prev,
                 latest = latest,
+                data_source = data_source,
                 fst = TRUE,
                 exact = exact)
 
@@ -222,10 +273,13 @@ read_sitrep <- function(view,
       endsWith(view.fst, ".fst")) {
     return(read_sitrep_fst(view.fst, columns = columns, decode = decode))
   }
+
+
   view.txt <-
     sitrep_file(view,
                 previous = prev,
                 latest = latest,
+                data_source = data_source,
                 fst = FALSE,
                 exact = exact)
 
@@ -239,7 +293,19 @@ read_sitrep <- function(view,
                        "HealthServiceManaging",
                        "ResultValue",
                        "LocalHealthServiceClinicalCatchment",
-                       "ExcludeFromExternalCommunicationsReason")
+                       "ExcludeFromExternalCommunicationsReason",
+                       "ExcludeFromExternalCommunications",
+                       "ContactWithPrimaryContact",
+                       "CBNNotifiedTo",
+                       "ExcludeReason",
+                       "MostRecentICUAdmission",
+                       "HealthcareAcquired",
+                       "LostToFollowUpDetails",
+                       "ExposureEndDate",
+                       "ContactsViaQuestion",
+                       "HealthcareWorkerSpecify",
+                       "ManagedInSalesforce",
+                       "SalesforceId")
 
   # just get names so colClasses can be used as appopriate
   file_col_names <- names(fread(file = view.txt, nrows = 101))
@@ -343,7 +409,23 @@ read_sitrep <- function(view,
       dir.create(dirname(view.fst), recursive = TRUE)
     }
     # Need to copy since the write file updates by ref
-    write_sitrep_fst(copy(out), view.fst)
+
+    # If this_hour is TRUE then also include latest
+
+    if (data_source %in% c("latest", "hour", "immediate")) {
+      write_sitrep_fst(out,
+                       sitrep_file(view,
+                                   data_source = "today",
+                                   fst = TRUE))
+      if (data_source != "hour") {
+        write_sitrep_fst(out,
+                         sitrep_file(view,
+                                     data_source = "hour",
+                                     fst = TRUE))
+      }
+    } else {
+      write_sitrep_fst(out, view.fst)
+    }
   }
   if (!is.null(columns)) {
     return(hutils::selector(out, cols = intersect(columns, names(out)), shallow = TRUE))
@@ -366,6 +448,7 @@ write_sitrep_fst <- function(DT, file.fst, ucx_threshold = 1000L, compress = 50)
   stopifnot(is.character(file.fst),
             length(file.fst) == 1L,
             is.data.table(DT))
+  DT <- copy(DT)
 
   uniques <-
     lapply(DT, function(x) {
@@ -379,6 +462,8 @@ write_sitrep_fst <- function(DT, file.fst, ucx_threshold = 1000L, compress = 50)
     # can also be decoded
     setNames(names(DT))
 
+  uniques_file_urds <- ext2ext(file.fst, "u.rds")
+  hutils::provide.file(uniques_file_urds)
   saveRDS(uniques, ext2ext(file.fst, "u.rds"))
 
   for (j in names(DT)) {
@@ -420,6 +505,29 @@ read_sitrep_fst <- function(file.fst, columns = NULL, decode = TRUE) {
     return(decode_sitrep(out, file.u.rds = ext2ext(file.fst, "u.rds")))
   }
   out
+}
+
+
+.views_avbl <- function() {
+  c("linelist",
+    "AdmitTimeline",
+    "AllClusters",
+    "CaseLinks",
+    "CasesCluster",
+    "ClusterSites",
+    "Comorbidities",
+    "ContactDates",
+    "Contacts",
+    # "Daneetable",
+    "EventLog",
+    "EventStatus",
+    "labresults",
+    "MonitoringLogging",
+    "MonitoringLoggingComplete",
+    "Persons",
+    "Presentations",
+    "SITREPTable",
+    "status")
 }
 
 

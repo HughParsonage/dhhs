@@ -1,4 +1,5 @@
 #' @title Environment variables used by DHHS
+#' @name dhhs-env-vars
 #' @description Used to identify paths used by the package
 #'
 #' @details
@@ -8,6 +9,4 @@
 #' by this package.}
 #' }
 #'
-
-
-# "R_DHHS_SITREP_FST_TRUNK"
+NULL

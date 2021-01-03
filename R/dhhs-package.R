@@ -1,7 +1,9 @@
 #' @import data.table
+#' @importFrom glue glue
 #' @importFrom magrittr %>%
-#' @importFrom utils hasName
 #' @importFrom stats setNames
+#' @importFrom utils adist
+#' @importFrom utils hasName
 
 #' @keywords internal
 "_PACKAGE"

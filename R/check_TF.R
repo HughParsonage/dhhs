@@ -1,4 +1,4 @@
-
+#' @title Check TRUE or FALSE
 #' @description (From package hutils) Checks an input is TRUE or FALSE,
 #' signalling an error with a descriptive error message otherwise.
 #' @name check_TF

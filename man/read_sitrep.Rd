@@ -8,6 +8,7 @@ read_sitrep(
   view,
   prev = FALSE,
   latest = FALSE,
+  data_source = NULL,
   excl_diag_today = TRUE,
   use_fst = getOption("dhhs.use_fst", TRUE),
   columns = NULL,
@@ -19,6 +20,12 @@ read_sitrep(
 }
 \arguments{
 \item{view, prev, latest}{As in `sitrep_file()` above.}
+
+\item{data_source}{Which data to use?  One of \code{"today"}, \code{"previous"},
+\code{"latest"}, or \code{"hour"}.
+
+By default, the values of \code{previous,latest} are used. If \code{data_source}
+is not \code{NULL} it takes priority.}
 
 \item{excl_diag_today}{(TRUE or FALSE, default: \code{TRUE}) Should
 rows where \code{DiagnosisDate >= today()} be dropped? Has no effect
@@ -40,6 +47,9 @@ at a later stage and the performance penalty is too large.}
 
 \item{reset_cache}{If \code{TRUE}, saved \code{fst} files will be deleted. Useful
 if the original files have been updated, or if the \code{fst} file had problems.}
+
+\item{exact}{\code{FALSE | TRUE} If \code{TRUE}, then \code{view} must match exactly,
+(up to file extensions).}
 }
 \value{
 A \code{data.table} sourced from the requested sitrep file.
