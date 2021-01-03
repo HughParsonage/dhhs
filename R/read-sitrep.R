@@ -21,6 +21,8 @@
 #' @param must_exist (TRUE or FALSE, default: negation of \code{fst}) If \code{TRUE},
 #' but the requested file does not exist, an error is raised. Otherwise, the putative
 #' file location is returned.
+#' @param exact \code{FALSE | TRUE} If \code{TRUE}, then \code{view} must match exactly,
+#' (up to file extensions).
 #'
 #' @return A \code{data.table}, the file requested.
 #'
@@ -62,7 +64,8 @@ sitrep_file <- function(view = c("linelist",
                         previous = FALSE,
                         latest = FALSE,
                         fst = FALSE,
-                        must_exist = !fst) {
+                        must_exist = !fst,
+                        exact = FALSE) {
   if (!missing(view) &&
       length(view) == 1L &&
       is.character(view) &&
@@ -120,21 +123,31 @@ sitrep_file <- function(view = c("linelist",
       stop("length(view) = ", length(view), ", but must be length-one.")
     }
     if (view %notin% .views_avbl) {
+
+      orig.view <- copy(view)
       # Check for simply the wrong case
       if (VIEW_MATCH <- match(toupper(view), toupper(.views_avbl), nomatch = 0L)) {
         view <- .views_avbl[VIEW_MATCH]
+        if (exact) {
+          stop(g("`exact = TRUE`, and `view = {orig.view}`. So stopping, as requested."), "\n",
+               g("(Did you mean '{view}'?)"))
+        }
+        message(g("Changing `view = {orig.view}` to `view`."))
       } else {
         # don't need full names
         files.outd <- dir(path = outd)
         adist.view <- adist(view, .views_avbl, ignore.case = TRUE)
         agrep.view <- agrep(view, .views_avbl, ignore.case = TRUE, value = TRUE)
-        orig.view <- copy(view)
+
         view <- .views_avbl[which.min(adist.view)]
-        if (length(agrep.view) > 1) {
-          message(g("Multiple partial matches for `view = {orig.view}`. "),
-                  g("Using view = {view}."), "\n",
-                  g("Did you mean {toString(agrep.view)}?"))
-        }
+        err_msg <-
+          paste0(g("Using partial match for `view = {orig.view}`. "),
+                 g("Using `view = {view}`."), "\n",
+                 if (length(agrep.view)) {
+                   g("(Did you mean {toString(agrep.view)}?)")
+                 })
+
+        (if (exact) stop else warning)(err_msg)
       }
     }
   }
@@ -161,7 +174,7 @@ sitrep_file <- function(view = c("linelist",
 #' @param use_fst Should \code{.fst} files be used if available. If \code{TRUE},
 #' but the corresponding file does not exist, it will be created and read in
 #' on future reads.
-#' @param columns Only applicable when reading \code{.fst} files.
+#' @param columns Only useful when reading \code{.fst} files.
 #' A character vector of column names to read in, dropping others. If \code{NULL},
 #' the default, all columns are read.
 #' @param decode If \code{FALSE}, \code{fst} files will be read without being decoded from
@@ -179,17 +192,25 @@ read_sitrep <- function(view,
                         columns = NULL,
                         decode = TRUE,
                         verbose = getOption("verbose", FALSE),
-                        reset_cache = getOption("dhhs.reset_cache", FALSE)) {
-  view.fst <- sitrep_file(view, previous = prev, latest = latest, fst = TRUE)
-  view.txt <- sitrep_file(view, previous = prev, latest = latest, fst = FALSE)
+                        reset_cache = getOption("dhhs.reset_cache", FALSE),
+                        exact = getOption("dhhs.sitrep_file_exact", FALSE)) {
   check_TF(use_fst)
   check_TF(excl_diag_today)
   check_TF(reset_cache)
+
+  view.fst <-
+    sitrep_file(view,
+                previous = prev,
+                latest = latest,
+                fst = TRUE,
+                exact = exact)
+
   if (reset_cache && file.exists(view.fst)) {
     file.remove(view.fst)
     file.exists(ext2ext(view.fst, "u.rds")) &&
       file.remove(ext2ext(view.fst, "u.rds"))
   }
+
 
 
   # If user requests fst file, has fst installed,
@@ -201,6 +222,14 @@ read_sitrep <- function(view,
       endsWith(view.fst, ".fst")) {
     return(read_sitrep_fst(view.fst, columns = columns, decode = decode))
   }
+  view.txt <-
+    sitrep_file(view,
+                previous = prev,
+                latest = latest,
+                fst = FALSE,
+                exact = exact)
+
+
   known_char_cols <- c("DateOfDeath",
                        "DischargedDeceased",
                        "LostToFollowUpReason",
@@ -315,6 +344,9 @@ read_sitrep <- function(view,
     }
     # Need to copy since the write file updates by ref
     write_sitrep_fst(copy(out), view.fst)
+  }
+  if (!is.null(columns)) {
+    return(hutils::selector(out, cols = intersect(columns, names(out)), shallow = TRUE))
   }
   out
 }

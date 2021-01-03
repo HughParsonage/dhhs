@@ -13,7 +13,8 @@ read_sitrep(
   columns = NULL,
   decode = TRUE,
   verbose = getOption("verbose", FALSE),
-  reset_cache = getOption("dhhs.reset_cache", FALSE)
+  reset_cache = getOption("dhhs.reset_cache", FALSE),
+  exact = getOption("dhhs.sitrep_file_exact", FALSE)
 )
 }
 \arguments{
@@ -27,7 +28,7 @@ if the requested file has no such column.}
 but the corresponding file does not exist, it will be created and read in
 on future reads.}
 
-\item{columns}{Only applicable when reading \code{.fst} files.
+\item{columns}{Only useful when reading \code{.fst} files.
 A character vector of column names to read in, dropping others. If \code{NULL},
 the default, all columns are read.}
 

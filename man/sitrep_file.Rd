@@ -12,7 +12,8 @@ sitrep_file(
   previous = FALSE,
   latest = FALSE,
   fst = FALSE,
-  must_exist = !fst
+  must_exist = !fst,
+  exact = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ standard \code{.txt} delimited/flat file.}
 \item{must_exist}{(TRUE or FALSE, default: negation of \code{fst}) If \code{TRUE},
 but the requested file does not exist, an error is raised. Otherwise, the putative
 file location is returned.}
+
+\item{exact}{\code{FALSE | TRUE} If \code{TRUE}, then \code{view} must match exactly,
+(up to file extensions).}
 }
 \value{
 A string, the path to the file requested.
