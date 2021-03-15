@@ -15,3 +15,14 @@ test_that("read_sitrep works", {
                  CONTACT_WITH_NCOV_DATE_MAX = "Date",
                  CONTACT_WITH_NCOV_DATE = "Date"))
 })
+
+
+test_that("sitrep_file doesn't overwrite existing files", {
+  skip_if_not(getRversion() >= "4.0.0")
+  temp_path <-
+    r"{E:\PBIX\NCoronavirus 2020\Stata nCoV reporting\31 Azure Data Model\DART\Data snapshots\CRMSampleData\Solid name for DPC}"
+  expect_false(
+    identical(sitrep_file(file.path(temp_path, paste0("linelist", ".txt")), fst = TRUE),
+              sitrep_file(file.path(temp_path, paste0("linelist", ".txt")), fst = FALSE))
+  )
+})

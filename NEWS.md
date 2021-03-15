@@ -1,4 +1,14 @@
-# dhhs 0.5.0 (2020-12-07)
+## dhhs 0.8.0 (2021-01-28)
+
+* Fixed bug where `fst = TRUE` could overwrite `.txt` files.
+
+## dhhs 0.7.0 (2021-01-22)
+* New environment variable `R_DHHS_SITREP_TXT_TRUNK` to specify the location of text files. Currently
+  defaults to 2020 path.
+  
+
+
+## dhhs 0.5.0 (2020-12-07)
 
 * `columns` in `read_sitrep` now takes the intersection of columns and is 
   used even when not reading in an `fst` file.

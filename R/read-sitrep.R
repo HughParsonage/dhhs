@@ -64,7 +64,11 @@ sitrep_file <- function(view = .views_avbl(),
       is.character(view) &&
       !is.na(view) &&
       file.exists(view)) {
-    return(view)
+    if (isTRUE(fst)) {
+      return(ext2ext(view, ".fst"))
+    } else {
+      return(view)
+    }
   }
   force(request_time)
   stopifnot(inherits(request_time, "POSIXct"),
@@ -139,8 +143,11 @@ sitrep_file <- function(view = .views_avbl(),
              "today" = "sitrep",
              "latest" = "latest",
              "hour" = "latest")
+
+    OLD_TXT_PATH <- "E:/PBIX/NCoronavirus 2020/Stata nCoV reporting/31 Azure Data Model/DART/Data snapshots"
     outd <-
-      file.path("E:/PBIX/NCoronavirus 2020/Stata nCoV reporting/31 Azure Data Model/DART/Data snapshots",
+      file.path(Sys.getenv("R_DHHS_SITREP_TXT_TRUNK",
+                           unset = OLD_TXT_PATH),
                 tail_dir)
   }
 
@@ -226,7 +233,7 @@ read_sitrep <- function(view,
                         latest = FALSE,
                         data_source = NULL,
                         excl_diag_today = TRUE,
-                        use_fst = getOption("dhhs.use_fst", TRUE),
+                        use_fst = getOption("dhhs.use_fst", FALSE),
                         columns = NULL,
                         decode = TRUE,
                         verbose = getOption("verbose", FALSE),

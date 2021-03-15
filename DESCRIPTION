@@ -1,8 +1,8 @@
 Package: dhhs
 Type: Package
 Title: Handle Common Tasks at the Department of Health and Human Services ('DHHS'), Victoria, Australia
-Version: 0.6.0
-Date: 2021-01-03
+Version: 0.8.0
+Date: 2021-01-28
 Authors@R: c(person("Hugh", "Parsonage", role = c("aut", "cre"), email = "hugh.parsonage@gmail.com"))
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
