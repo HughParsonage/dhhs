@@ -245,6 +245,8 @@ read_sitrep <- function(view,
   check_TF(prev)
   check_TF(latest)
 
+
+
   if (is.null(data_source)) {
     if (prev) {
       data_source <- "previous"
