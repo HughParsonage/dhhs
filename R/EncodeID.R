@@ -8,7 +8,8 @@
 #' characters. If \code{NULL}, the default, the cipher is determined from \code{x}.
 #' @param validate_cipher Should \code{cipher} be validated, ensuring that each element
 #' of \code{x} is amenable to the \code{cipher} provided? Has no effect if
-#' \code{cipher} is \code{NULL}.
+#' \code{cipher} is \code{NULL}. Setting this to \code{FALSE} with an incorrect
+#' cipher is undefined behaviour.
 #' @param enc An encoded version of the ID.
 #' @param n A positive integer, the anticipated number of characters in each element of
 #' \code{x}. Set to 18 by default since most identifiers are width 18.
@@ -17,13 +18,19 @@
 #'
 #' @return
 #' Each provides an interface to translate predictable character vectors
-#' from integers and back.
+#' to integers and back.
 #'
 #' \describe{
-#' \item{\code{EncodeID}}{An integer vector, the encoded version of \code{x}.}
+#' \item{\code{EncodeID}}{An integer vector, the encoded version of \code{x}. The attribute
+#' \code{"dhhs_fwalnum_cipher"} of the object is the \strong{cipher}:
+#'  a character vector whose length is the
+#' number of characters in each element of the original and each element of which
+#' gives the characters used at each position in every element of \code{x}.}
 #' \item{\code{fwalnume}}{Returns the \code{cipher} determined by the contents of \code{x}.}
 #' \item{\code{validate_fwalnume}}{If the cipher is valid, \code{0}; otherwise,
 #' the position of the first invalid element.}
+#' \item{\code{cipher_of}}{is a convenience function for extracting the cipher
+#' from an encoded vector.}
 #' }
 #'
 #'
@@ -42,7 +49,7 @@ EncodeID <- function(x, cipher = NULL, validate_cipher = TRUE, check_for_na = TR
       }
     }
   }
-  ans <- .Call("Calphnum_enc", x, cipher, PACKAGE = packageName())
+  ans <- .Call("CEncode_fwalnum", x, cipher, PACKAGE = packageName())
   attr(ans, "dhhs_fwalnum_cipher") <- cipher
   ans
 }
@@ -63,6 +70,12 @@ validate_fwalnume <- function(x, cipher, check_for_na = TRUE) {
   .Call("CValidate_fwalnum", x, cipher, PACKAGE = packageName())
 }
 
-Decode_fwalnum <- function(e, cipher) {
+#' @rdname EncodeID
+#' @export
+cipher_of <- function(e) {
+  attr(e, "dhhs_fwalnum_cipher")
+}
+
+DecodeID <- function(e, cipher = cipher_of(e)) {
   .Call("CDecode_fwalnum", e, cipher, PACKAGE = packageName())
 }

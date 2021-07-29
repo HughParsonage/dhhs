@@ -10,7 +10,7 @@ read_sitrep(
   latest = FALSE,
   data_source = NULL,
   excl_diag_today = TRUE,
-  use_fst = getOption("dhhs.use_fst", TRUE),
+  use_fst = getOption("dhhs.use_fst", FALSE),
   columns = NULL,
   decode = TRUE,
   verbose = getOption("verbose", FALSE),

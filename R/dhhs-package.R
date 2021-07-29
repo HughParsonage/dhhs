@@ -1,9 +1,12 @@
 #' @import data.table
+#' @importFrom fastmatch fmatch
 #' @importFrom glue glue
 #' @importFrom magrittr %>%
 #' @importFrom stats setNames
 #' @importFrom utils adist
 #' @importFrom utils hasName
+#'
+#' @useDynLib dhhs, .registration=TRUE
 
 #' @keywords internal
 "_PACKAGE"
