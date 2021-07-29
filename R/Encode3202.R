@@ -2,8 +2,8 @@
 #' @param x,y \code{character(n)} Vectors to encode.
 #' @param enc \code{integer(n)} Encoded vectors to decode.
 #'
-#' @return \code{Encode3202} returns an integer based on the digits following
-#' the prefix \code{"3202"}. \code{Decode3202} is the reverse process.
+#' @return \code{encode_3202} returns an integer based on the digits following
+#' the prefix \code{"3202"}. \code{decode_3202} is the reverse process.
 #'
 #' \code{names2int} takes two character vectors of equal length and returns
 #' an integer based on the first two digits. \code{Lookup4} is the inverse
@@ -13,18 +13,18 @@
 #'
 #' @export
 
-Encode3202 <- function(x) {
+encode_3202 <- function(x) {
   .Call("CEncode3202", x, PACKAGE = packageName())
 }
 
-#' @rdname Encode3202
+#' @rdname encode_3202
 #' @export
-Decode3202 <- function(enc) {
+decode_3202 <- function(enc) {
   stopifnot(is.integer(enc))
   .Call("CDecode3202", enc, PACKAGE = packageName())
 }
 
-#' @rdname Encode3202
+#' @rdname encode_3202
 #' @export
 Validate3202 <- function(x) {
   stopifnot(is.character(x))

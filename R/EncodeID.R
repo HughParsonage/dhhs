@@ -21,7 +21,7 @@
 #' to integers and back.
 #'
 #' \describe{
-#' \item{\code{EncodeID}}{An integer vector, the encoded version of \code{x}. The attribute
+#' \item{\code{encode_ID}}{An integer vector, the encoded version of \code{x}. The attribute
 #' \code{"dhhs_fwalnum_cipher"} of the object is the \strong{cipher}:
 #'  a character vector whose length is the
 #' number of characters in each element of the original and each element of which
@@ -34,9 +34,9 @@
 #' }
 #'
 #'
-#' @export EncodeID
+#' @export encode_ID
 
-EncodeID <- function(x, cipher = NULL, validate_cipher = TRUE, check_for_na = TRUE) {
+encode_ID <- function(x, cipher = NULL, validate_cipher = TRUE, check_for_na = TRUE) {
   if (is.null(cipher)) {
     cipher <- fwalnume(x)
   } else {
@@ -54,7 +54,7 @@ EncodeID <- function(x, cipher = NULL, validate_cipher = TRUE, check_for_na = TR
   ans
 }
 
-#' @rdname EncodeID
+#' @rdname encode_ID
 #' @export
 fwalnume <- function(x, n = 18L) {
   n <- ensure_integer(n)
@@ -70,12 +70,12 @@ validate_fwalnume <- function(x, cipher, check_for_na = TRUE) {
   .Call("CValidate_fwalnum", x, cipher, PACKAGE = packageName())
 }
 
-#' @rdname EncodeID
+#' @rdname encode_ID
 #' @export
 cipher_of <- function(e) {
   attr(e, "dhhs_fwalnum_cipher")
 }
 
-DecodeID <- function(e, cipher = cipher_of(e)) {
+decode_ID <- function(e, cipher = cipher_of(e)) {
   .Call("CDecode_fwalnum", e, cipher, PACKAGE = packageName())
 }

@@ -7,7 +7,7 @@
 #' @export
 
 
-EncodeYN <- function(x) {
+encode_YN <- function(x) {
   .Call("CEncodeYN", x, PACKAGE = packageName())
 }
 

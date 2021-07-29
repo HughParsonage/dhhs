@@ -1,4 +1,5 @@
 test_that("read_sitrep works", {
+  skip_if_not(dir.exists("E:/PBIX/"))
   Contacts <- read_sitrep("Contacts")
   expect_true(is.character(Contacts$TargetPHESSID))
   expect_true(is.character(Contacts$SourcePHESSID))
@@ -18,6 +19,7 @@ test_that("read_sitrep works", {
 
 
 test_that("sitrep_file doesn't overwrite existing files", {
+  skip_if_not(dir.exists("E:/PBIX/"))
   skip_if_not(getRversion() >= "4.0.0")
   temp_path <-
     r"{E:\PBIX\NCoronavirus 2020\Stata nCoV reporting\31 Azure Data Model\DART\Data snapshots\CRMSampleData\Solid name for DPC}"

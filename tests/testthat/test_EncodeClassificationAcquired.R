@@ -1,4 +1,4 @@
-test_that("EncodeClassificationAcquired", {
+test_that("encode_ClassificationAcquired", {
   library(data.table)
   DT <-
     list(CC = c("Acquisition contact",
@@ -72,8 +72,8 @@ test_that("EncodeClassificationAcquired", {
                 NA,
                 "Under investigation"))
   setDT(DT)
-  DT[, enc := EncodeClassificationAcquired(CC, AA)]
-  DT[, c("C", "A") := DecodeClassificationAcquired(enc)]
+  DT[, enc := encode_ClassificationAcquired(CC, AA)]
+  DT[, c("C", "A") := decode_ClassificationAcquired(enc)]
   expect_true(is.integer(DT$enc))
   expect_true(is.character(DT$C))
   expect_true(is.character(DT$A))

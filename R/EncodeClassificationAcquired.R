@@ -1,10 +1,10 @@
 
 
-EncodeClassificationAcquired <- function(Classification, Acquired) {
+encode_ClassificationAcquired <- function(Classification, Acquired) {
   .Call("CEncodeClassificationAcquired", Classification, Acquired, PACKAGE = packageName())
 }
 
-DecodeClassificationAcquired <- function(x) {
+decode_ClassificationAcquired <- function(x) {
   uClassifications <-
     c("Acquisition contact",
       "Casual contact",
