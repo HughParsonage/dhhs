@@ -1,3 +1,15 @@
+## dhhs 0.10.0 (2021-07-29)
+
+### Enhancements
+
+* When reading sitrep, dates are mapped to `IDate` via a new function `ddmmYYYY2Int`
+  which offers considerably improved performance.
+
+### New functions
+
+* `ddmmYYYY2Int` for converting an dd/mm/YYYY character vector to integer
+* Various encoding functions
+
 ## dhhs 0.8.0 (2021-01-28)
 
 * Fixed bug where `fst = TRUE` could overwrite `.txt` files.

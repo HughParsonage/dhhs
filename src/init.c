@@ -8,6 +8,7 @@
 */
 
 /* .Call calls */
+extern SEXP CDate2Int(SEXP);
 extern SEXP CDecode_fwalnum(SEXP, SEXP);
 extern SEXP CDecode3202(SEXP);
 extern SEXP CDetermine_fwalnum(SEXP, SEXP);
@@ -20,6 +21,7 @@ extern SEXP CValidate3202(SEXP);
 extern SEXP Cwhich_isnt_int(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
+    {"CDate2Int",                     (DL_FUNC) &CDate2Int,                     1},
     {"CDecode_fwalnum",               (DL_FUNC) &CDecode_fwalnum,               2},
     {"CDecode3202",                   (DL_FUNC) &CDecode3202,                   1},
     {"CDetermine_fwalnum",            (DL_FUNC) &CDetermine_fwalnum,            2},

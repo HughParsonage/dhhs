@@ -2,10 +2,13 @@
 
 export(Validate3202)
 export(cipher_of)
+export(ddmmyyyy2Int)
 export(decode_3202)
+export(decode_PermitType)
 export(decode_RecordType)
 export(encode_3202)
 export(encode_ID)
+export(encode_PermitType)
 export(encode_RecordType)
 export(encode_YN)
 export(fwalnume)

@@ -340,7 +340,7 @@ read_sitrep <- function(view,
                verbose = verbose)
 
   # Make date columns Date class (if not already -- see newer versions of data.table)
-  for (j in grep("Date|DATE", copy(names(out)), value = TRUE)) {
+  for (j in grep("Date|DATE|PermitDayOfArrival", copy(names(out)), value = TRUE)) {
     # j is the column name, v is the column itself
     v <- .subset2(out, j)
     if (!is.character(v)) {
@@ -360,10 +360,7 @@ read_sitrep <- function(view,
     # defined operation; hence, we allocate a new column that is class
     # 'Date' from the start.
 
-    k <- g("{j}_tmp")
-    out[, (k) := as.Date(.BY[[1]], format = "%d/%m/%Y"), by = c(j)]
-    out[, (j) := NULL]
-    setnames(out, k, j)
+    set(out, j = j, value = as.IDate(ddmmyyyy2Int(v)))
   }
   # Verify we don't have any integer64 columns that have snuck through
   # (Some versions of data.table did not respect the integer64 argument
@@ -396,7 +393,13 @@ read_sitrep <- function(view,
     today <- Sys.Date() - (hour(Sys.time()) < 6L)
 
     # Exclude cases diagnosed today, assume missing values should be kept
-    out <- out[fcoalesce(DiagnosisDate < today, TRUE)]
+    # but do not needlessly apply a costly filter when there are no
+    # such dates
+    which_diags_above <- which(.subset2(out, "DiagnosisDate") >= today)
+
+    if (length(which_diags_above)) {
+      out <- out[fcoalesce(DiagnosisDate < today, TRUE)]
+    }
   }
 
   if (hasName(out, "Latitude") && hasName(out, "Longitude")) {
@@ -539,5 +542,14 @@ read_sitrep_fst <- function(file.fst, columns = NULL, decode = TRUE) {
     "status")
 }
 
-
+read_linelist_fst <- function(view = "linelist", columns = NULL) {
+  files.fst <- dir(path = Sys.getenv("R_DHHS_SITREP_FST_TRUNK"),
+                   pattern = view,
+                   full.names = TRUE)
+  files.fst <- files.fst[endsWith(files.fst, ".fst")]
+  if (length(files.fst) != 1) {
+    stop("file.fst not len 1:\n\t", head(files.fst))
+  }
+  fst::read_fst(files.fst, as.data.table = TRUE, columns = columns)
+}
 

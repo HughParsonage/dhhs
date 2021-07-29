@@ -1,6 +1,9 @@
 
 .onLoad <- function(libname, pkgname) {
-  dhhs_env <- getOption("dhhs_env", new.env())
+  if (is.null(getOption("dhhs_env"))) {
+    options(dhhs_env = new.env())
+  }
+  dhhs_env <- getOption("dhhs_env")
   hash_assign <- function(nom, value, envir = dhhs_env) {
     opt_nom <- paste0("dhhs_", nom)
     tbl <- value
@@ -22,6 +25,9 @@
       "Unclassified Contact")
 
   hash_assign("uRecordType", uRecordType)
+
+  uPermitType <- c("Green", "Orange", "Red")
+  hash_assign("uPermitType", uPermitType)
 
 }
 

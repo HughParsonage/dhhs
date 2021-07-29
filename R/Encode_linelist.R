@@ -29,6 +29,8 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
              "Contact" = encode_ID(v),
              "PHESSID" = encode_3202(v),
              "LegacyPHESSID" = encode_3202(v),
+             "Sex" = startsWith(v, "M"),
+             "PermitType" = encode_PermitType(v),
              NULL)
     if (!is.null(oj)) {
       set(DT, j = j, value = oj)
