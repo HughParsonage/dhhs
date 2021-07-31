@@ -8,9 +8,6 @@
     opt_nom <- paste0("dhhs_", nom)
     tbl <- value
     fastmatch::fmatch(value, tbl)
-    if (is.null(getOption(opt_nom))) {
-      options(opt_nom = tbl)
-    }
     assign(nom, value = value, envir = envir)
   }
 
@@ -28,6 +25,12 @@
 
   uPermitType <- c("Green", "Orange", "Red")
   hash_assign("uPermitType", uPermitType)
+
+  uMetroRural <- c("Metro", "Rural", "Unknown", "Interstate", "Overseas")
+  hash_assign("uMetroRural", uMetroRural)
+
+  uLabSummary <- c("No results", "Not Detected", "Detected")
+  hash_assign("uLabSummary", uLabSummary)
 
 }
 

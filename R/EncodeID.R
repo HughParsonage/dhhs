@@ -37,6 +37,9 @@
 #' @export encode_ID
 
 encode_ID <- function(x, cipher = NULL, validate_cipher = TRUE, check_for_na = TRUE) {
+  if (is.integer(x)) {
+    return(x)
+  }
   if (is.null(cipher)) {
     cipher <- fwalnume(x)
   } else {

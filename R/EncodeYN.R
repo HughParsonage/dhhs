@@ -11,6 +11,10 @@ encode_YN <- function(x) {
   .Call("CEncodeYN", x, PACKAGE = packageName())
 }
 
+encode_YN_startsWith <- function(x) {
+  startsWith(x, "Y")
+}
+
 .yncols <- function() {
   c("Symptoms", "ContactWithRecordID", "ContactWithPrimaryContact",
     "CaseInterview", "MostRecentICUAdmission", "Healthcare14Days",
@@ -21,6 +25,6 @@ encode_YN <- function(x) {
      "ConsentFlag", "VirtualWardFlag",
     "ExcludeFromExternalCommunications",
     "CBNRequired", "IsThisVOC",
-
+    "NewToICU", # likely constant
     "InterpretorRequired")
 }

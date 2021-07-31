@@ -104,5 +104,43 @@ SEXP CEncodeClassificationAcquired(SEXP Classification, SEXP Acquired) {
   return ans;
 }
 
+SEXP CClassification_filter(SEXP x, SEXP mtbl) {
+  if (!isInteger(x) || !isInteger(mtbl)) {
+    error("Expected integer vectors.");
+  }
+  R_xlen_t N = xlength(x);
+  const int m_len = length(mtbl);
+  const int * xp = INTEGER(x);
+
+  SEXP ans = PROTECT(allocVector(LGLSXP, N));
+  int * restrict ansp = LOGICAL(ans);
+
+  if (length(mtbl) == 1) {
+    const int m = asInteger(mtbl);
+    for (R_xlen_t i = 0; i < N; ++i) {
+      unsigned int xpi = xp[i];
+      ansp[i] = (xpi & 15u) == m;
+    }
+  } else {
+    const int * mp = INTEGER(mtbl);
+    for (R_xlen_t i = 0; i < N; ++i) {
+      unsigned int xpi = xp[i];
+      unsigned int cpi = xpi & 15u;
+      bool o = false;
+      for (int j = 0; j < m_len; ++j) {
+        unsigned int mpj = mp[j];
+        if (cpi == mpj) {
+          o = true;
+          break;
+        }
+      }
+      ansp[i] = o;
+    }
+  }
+  UNPROTECT(1);
+  return ans;
+
+}
+
 
 

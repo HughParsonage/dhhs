@@ -1,10 +1,14 @@
 
 Encode_linelist <- function(DT, do_copy = TRUE) {
+  if (!is.data.table(DT)) {
+    stop("`DT` was class ", toString(class(DT)), " but must be a data.table.")
+  }
   if (isTRUE(do_copy)) {
     DT <- copy(DT)
   }
   noms <- copy(names(DT))
-  set_cols_last(DT, c("Classification", "Acquired"))
+  set_cols_last(DT, c("Classification", "Acquired",
+                      "IndigenousStatus", "Indigenous"))
   for (j in noms) {
     nomj <- j
     if (!hasName(DT, nomj)) {
@@ -12,9 +16,19 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
       next
     }
     v <- .subset2(DT, nomj)
+    if (inherits(v, "Date") && !inherits(v, "IDate")) {
+      set(DT, j = j, value = as.IDate(v))
+      next
+    }
+
     if (nomj %in% c("Classification", "Acquired")) {
       DT[, "ClassAcqEnc" := encode_ClassificationAcquired(Classification, Acquired)]
       DT[, c("Classification", "Acquired") := NULL]
+      next
+    }
+    if (nomj %in% c("IndigenousStatus", "Indigenous")) {
+      DT[, "eIndig" := encode_Indig(IndigenousStatus, Indigenous)]
+      DT[,  c("IndigenousStatus", "Indigenous") := NULL]
       next
     }
 
@@ -22,15 +36,30 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
       set(DT, j = j, value = encode_YN(v))
       next
     }
+    if (nomj == "Sex") {
+      set(DT, j = "Sex", value = startsWith(v, "M"))
+      setnames(DT, "Sex", "isMale")
+      next
+    }
+
     oj <-
       switch(nomj,
              "RecordID" = encode_ID(v),
              "AccountID" = encode_ID(v),
              "Contact" = encode_ID(v),
+             "HealthServiceManaging" = encode_ID(v),
              "PHESSID" = encode_3202(v),
              "LegacyPHESSID" = encode_3202(v),
-             "Sex" = startsWith(v, "M"),
              "PermitType" = encode_PermitType(v),
+             "ActiveFlag" = v == "Active",
+             "MetroRural" = encode_MetroRural(v),
+             "LabSummary" = encode_LabSummary(v),
+             "CovidSafe" = startsWith(v, "Y"),
+             "SymptomaticAtTesting" = encode_SymptomaticAtTesting(v),
+             "CALDFlag" = encode_CALDFlag(v),
+             "PrimaryExposure" = v == "Primary",
+             "SchoolStudent" = encode_SchoolStudent(v),
+             "CountryOfBirth" = encode_iso3c(v),
              NULL)
     if (!is.null(oj)) {
       set(DT, j = j, value = oj)

@@ -83,3 +83,8 @@ int n_chars(int x) {
   return 2;
 }
 
+int char2number(char x) {
+  unsigned int xi = x - '0';
+  return xi <= 9u ? xi : 0;
+}
+
