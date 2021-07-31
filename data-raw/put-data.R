@@ -5,4 +5,5 @@ country_codes <-
   .[]
 
 iso3166[country_codes, Dial := i.Dial, on = .(iso3c)]
-
+iso3166[, i := .I]
+fst::write_fst(iso3166, "inst/extdata/iso3166.fst")
