@@ -1,6 +1,8 @@
 #' @import data.table
 #' @importFrom fastmatch fmatch
 #' @importFrom glue glue
+#' @importFrom hutils set_cols_last
+#' @importFrom hutils set_cols_first
 #' @importFrom magrittr %>%
 #' @importFrom stats setNames
 #' @importFrom utils adist
