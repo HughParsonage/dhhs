@@ -8,12 +8,16 @@
 */
 
 /* .Call calls */
+extern SEXP C_isLogical(SEXP);
 extern SEXP CClassification_filter(SEXP, SEXP);
+extern SEXP Ccurdle0(SEXP);
 extern SEXP CDate2Int(SEXP);
 extern SEXP CDecode_fwalnum(SEXP, SEXP);
+extern SEXP Cdecode_State(SEXP, SEXP);
 extern SEXP CDecode3202(SEXP);
 extern SEXP CDetermine_fwalnum(SEXP, SEXP);
 extern SEXP CEncode_fwalnum(SEXP, SEXP);
+extern SEXP Cencode_State(SEXP, SEXP);
 extern SEXP CEncode3202(SEXP);
 extern SEXP CEncodeClassificationAcquired(SEXP, SEXP);
 extern SEXP CEncodeYN(SEXP);
@@ -27,12 +31,16 @@ extern SEXP CValidate3202(SEXP);
 extern SEXP Cwhich_isnt_int(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
+    {"C_isLogical",                   (DL_FUNC) &C_isLogical,                   1},
     {"CClassification_filter",        (DL_FUNC) &CClassification_filter,        2},
+    {"Ccurdle0",                      (DL_FUNC) &Ccurdle0,                      1},
     {"CDate2Int",                     (DL_FUNC) &CDate2Int,                     1},
     {"CDecode_fwalnum",               (DL_FUNC) &CDecode_fwalnum,               2},
+    {"Cdecode_State",                 (DL_FUNC) &Cdecode_State,                 2},
     {"CDecode3202",                   (DL_FUNC) &CDecode3202,                   1},
     {"CDetermine_fwalnum",            (DL_FUNC) &CDetermine_fwalnum,            2},
     {"CEncode_fwalnum",               (DL_FUNC) &CEncode_fwalnum,               2},
+    {"Cencode_State",                 (DL_FUNC) &Cencode_State,                 2},
     {"CEncode3202",                   (DL_FUNC) &CEncode3202,                   1},
     {"CEncodeClassificationAcquired", (DL_FUNC) &CEncodeClassificationAcquired, 2},
     {"CEncodeYN",                     (DL_FUNC) &CEncodeYN,                     1},

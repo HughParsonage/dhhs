@@ -13,7 +13,7 @@ SEXP Cgrepl_09(SEXP xx) {
     const char * x = CHAR(CX);
     bool o = false;
     for (int j = 0; j < n; ++j) {
-      if (char_is_number(x[j])) {
+      if (isdigit(x[j])) {
         o = true;
         break;
       }

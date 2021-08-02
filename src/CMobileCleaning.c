@@ -67,22 +67,40 @@ bool jchars_are_numbers(int jj0, int jj1, int jj2, const char * x, int n, int j)
 
 
 int is_04mobile_from(const char * x, int n, char char1) {
-  int j = 0;
+
   if (n == 10) {
-    return x[0] == '0' && x[1] == '4' &&
-      jchar_is_number(x, 3) &&
-      jchar_is_number(x, 4) &&
-      jchar_is_number(x, 5) &&
-      jchar_is_number(x, 6) &&
-      jchar_is_number(x, 7) &&
-      jchar_is_number(x, 8) &&
-      jchar_is_number(x, 9);
+    if (x[0] == '0' && x[1] == '4' &&
+        jchar_is_number(x, 3) &&
+        jchar_is_number(x, 4) &&
+        jchar_is_number(x, 5) &&
+        jchar_is_number(x, 6) &&
+        jchar_is_number(x, 7) &&
+        jchar_is_number(x, 8) &&
+        jchar_is_number(x, 9)) {
+      return 9;
+    }
+    return 0;
   }
 
-
+  int j = 0;
+  // start from the digit just before the first '4' in the number
+  // +614 we advance until we hit a plus
+  //  614 we advance until we hit a 6
+  while (char1 == '+' && j < n && x[j] != '+') {
+    ++j;
+  }
+  while (char1 != '0' && j < n && x[j] != '6') {
+    ++j;
+  }
   for (; j < n - 9; ++j) {
     if (char1 == '0') {
       if (x[j] != '0' || x[j + 1] != '4') {
+        ++j;
+        continue;
+      }
+    } else {
+      if (x[j] != '1' || x[j + 1] != '4') {
+        ++j;
         continue;
       }
     }
@@ -116,6 +134,13 @@ int is_04mobile_from(const char * x, int n, char char1) {
   return 0;
 }
 
+int is_au_landline(const char * x, int n) {
+  switch(n) {
+  case 27:
+    return 0;
+  }
+}
+
 
 SEXP CStandardMobile(SEXP xx, SEXP SixOne, SEXP Plus) {
   const bool six_one = asLogical(SixOne);
@@ -124,51 +149,125 @@ SEXP CStandardMobile(SEXP xx, SEXP SixOne, SEXP Plus) {
     error("Expected string.");
   }
   R_xlen_t N = xlength(xx);
-
+  const SEXP * xp = STRING_PTR(xx);
   SEXP ans = PROTECT(allocVector(INTSXP, N));
   SEXP Int = PROTECT(allocVector(RAWSXP, N));
   int * restrict ansp = INTEGER(ans);
   unsigned char * restrict intp = RAW(Int);
   for (R_xlen_t i = 0; i < N; ++i) {
-    SEXP CX = STRING_ELT(xx, i);
-    if (CX == NA_STRING) {
-      intp[i] = 0;
-      ansp[i] = NA_INTEGER;
-      continue;
-    }
+    SEXP CX = xp[i];
     int n = length(CX);
-    const char * x = CHAR(CX);
-    int n_digit = 0;
-    for (int j = 0; j < n; ++j) {
-      n_digit += char_is_number(x[j]);
-    }
-    int j_04mob = is_04mobile_from(x, n, '0');
-    if (j_04mob <= 0) {
-      ansp[i] = NA_INTEGER;
+    if (n < 9) {
       intp[i] = 0;
+      ansp[i] = NA_INTEGER;
       continue;
     }
-    int k = 0;
-    unsigned int mob_no = 0;
-    unsigned int ten = 1;
-    for (int j = j_04mob; j >= 0; --j) {
-      if (ten > 1e9) {
-        break;
-      }
-      mob_no += ten * char2number(x[j]);
-      ten *= x[j] != ' ' ? 10 : 1;
 
-
+    const char * x = CHAR(CX);
+    int j_04mob = is_04mobile_from(x, n, '0');
+    if (j_04mob == 0) {
+      j_04mob = is_04mobile_from(x, n, '+');
     }
-    ansp[i] = mob_no;
-    intp[i] = 61;
+    if (j_04mob == 0) {
+      j_04mob = is_04mobile_from(x, n, '6');
+    }
+    if (j_04mob) {
+      // Australian number 04
+      unsigned int mob_no = 0;
+      unsigned int ten = 1;
+      for (int j = j_04mob; j >= 0; --j) {
+        if (ten > 1e9) {
+          break;
+        }
+        mob_no += ten * char2number(x[j]);
+        ten *= x[j] != ' ' ? 10 : 1;
+      }
+      ansp[i] = mob_no;
+      intp[i] = 61;
+      continue;
+    }
+    ansp[i] = 0;
+    intp[i] = 1;
+
+
+
 
   }
   SEXP List = PROTECT(allocVector(VECSXP, 2));
   SET_VECTOR_ELT(List, 0, ans);
   SET_VECTOR_ELT(List, 1, Int);
   UNPROTECT(3);
-  return List;
+  return ans;
+}
+
+SEXP CStandardHomePh(SEXP xx) {
+  R_xlen_t N = xlength(xx);
+  if (!isString(xx)) {
+    return xx;
+  }
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+  const SEXP * xp = STRING_PTR(xx);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    int n = length(xp[i]);
+    ansp[i] = NA_INTEGER;
+    if (n < 8 || n == 27 || n == 25) {
+      //  Mobile Number Not Provide
+      continue; // 0Mobile Number Not Provided
+    }
+    const char * x = CHAR(xp[i]);
+    if (x[1] == '4' && x[0] == '4')  {
+      // Likely mobile phone number
+      continue;
+    }
+    if (x[0] == '6' && x[1] == '1' && x[2] == '4') {
+      continue;
+    }
+    if (x[0] == '+' && x[1] == '6' && x[2] == '1' && x[3] == '4') {
+      continue;
+    }
+    if (x[0] == '6' && x[1] == '1' && x[2] == '4') {
+      continue;
+    }
+
+
+
+
+    int o = 0;
+    int ten = 1;
+    if (n == 10) {
+      for (int j = 9; j >= 2; --j) {
+        o += ten * char2number(x[j]);
+        ten *= 10;
+      }
+      ansp[i] = o;
+    }
+    if (x[0] == '(' && x[3] == ')') {
+      for (int j = n - 1; j >= 4; --j) {
+        if (ten > 1e8) {
+          break;
+        }
+        o += ten * char2number(x[j]);
+        ten *= 10;
+      }
+      ansp[i] = o;
+    }
+
+
+    for (int j = n; j >= 2; --j) {
+      if (ten > 1e8) {
+        break;
+      }
+      char xj = x[j];
+      if (char_is_number(xj)) {
+        o += ten * (x[j] - '0');
+        ten *= 10;
+      }
+    }
+    ansp[i] = o;
+  }
+  UNPROTECT(1);
+  return ans;
 }
 
 SEXP Cuint2dbl(SEXP x) {

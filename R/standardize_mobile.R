@@ -12,4 +12,8 @@ standard_mobile_intl <- function(mobraw) {
   .Call("CStandardMobile", mobraw, TRUE, TRUE, PACKAGE = packageName())
 }
 
+standard_phone <- function(mobile, home_phone) {
+
+}
+
 

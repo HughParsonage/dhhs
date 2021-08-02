@@ -49,3 +49,36 @@ SEXP CEncodeYN(SEXP xx) {
   UNPROTECT(1);
   return ans;
 }
+
+SEXP C_isLogical(SEXP x) {
+  if (isLogical(x)) {
+    return ScalarLogical(1);
+  }
+  if (!isInteger(x) && !isReal(x)) {
+    return ScalarLogical(0);
+  }
+  R_xlen_t N = xlength(x);
+  if (TYPEOF(x) == INTSXP) {
+    const int * xp = INTEGER(x);
+    for (R_xlen_t i = 0; i < N; ++i) {
+      int xpi = xp[i];
+      if (xpi == 0 || xpi == 1 || xpi == NA_INTEGER) {
+        continue;
+      }
+      return ScalarLogical(0);
+    }
+  } else {
+    const double * xp = REAL(x);
+    for (R_xlen_t i = 0; i < N; ++i) {
+      double xpi = xp[i];
+      if (ISNAN(xpi) || xpi == 0 || xpi == 1) {
+        continue;
+      }
+      return ScalarLogical(0);
+    }
+  }
+
+  return ScalarLogical(1);
+}
+
+

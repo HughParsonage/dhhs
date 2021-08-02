@@ -6,9 +6,16 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
   if (isTRUE(do_copy)) {
     DT <- copy(DT)
   }
+  const_cols <- which(vapply(DT, isntConstant, 0L) == 0L)
+  if (length(const_cols)) {
+    setattr(DT, name = "const_cols", DT[, lapply(.SD, first), .SDcols = c(const_cols)])
+    DT[, c(const_cols) := NULL]
+  }
+
   noms <- copy(names(DT))
   set_cols_last(DT, c("Classification", "Acquired",
-                      "IndigenousStatus", "Indigenous"))
+                      "IndigenousStatus", "Indigenous",
+                      "Continent"))
   for (j in noms) {
     nomj <- j
     if (!hasName(DT, nomj)) {
@@ -36,6 +43,10 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
       set(DT, j = j, value = encode_YN(v))
       next
     }
+    if (isEssentiallyLogical(v)) {
+      set(DT, j = j, value = as.logical(v))
+      next
+    }
     if (nomj == "Sex") {
       set(DT, j = "Sex", value = startsWith(v, "M"))
       setnames(DT, "Sex", "isMale")
@@ -60,6 +71,11 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
              "PrimaryExposure" = v == "Primary",
              "SchoolStudent" = encode_SchoolStudent(v),
              "CountryOfBirth" = encode_iso3c(v),
+             "State" = encode_State(v),
+             "TravelWithinAustraliaState" = encode_State(v),
+             "PrimaryWorkplace" = encode_PrimaryWorkplace(v),
+             "LostToFollowUpReason" = encode_LostToFollowUpReason(v),
+             "ClearedReason" = encode_ClearedReason(v),
              NULL)
     if (!is.null(oj)) {
       set(DT, j = j, value = oj)
@@ -69,7 +85,7 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
   # Unnecessary columns (or columns that may be inferred from others)
 
 
-  DT[, c("AgeAtOnset", "AgeGroupTenYr", "BroadAgeGroup") := NULL]
+  DT[, c("AgeAtOnset", "AgeGroupTenYr", "BroadAgeGroup", "Continent") := NULL]
 }
 
 
