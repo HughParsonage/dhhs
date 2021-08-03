@@ -12,10 +12,19 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
     DT[, c(const_cols) := NULL]
   }
 
+
+  if (hasName(DT, "HealthcareWorker")) {
+    if (hasName(DT, "HealthcareWorkerBroad")) {
+      DT[, "HealthcareWorkerBroad" := NULL]
+    }
+    DT[, "HealthcareWorker" := encode_HealthCare2(HealthcareWorker)]
+  }
   noms <- copy(names(DT))
   set_cols_last(DT, c("Classification", "Acquired",
                       "IndigenousStatus", "Indigenous",
-                      "Continent"))
+                      "Continent",
+                      "HealthcareWorkerBroad"))
+
   for (j in noms) {
     nomj <- j
     if (!hasName(DT, nomj)) {
@@ -23,6 +32,14 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
       next
     }
     v <- .subset2(DT, nomj)
+    if (isEssentiallyLogical(v)) {
+      set(DT, j = j, value = as.logical(v))
+      next
+    }
+    if (is.numeric(v)) {
+      next
+    }
+
     if (inherits(v, "Date") && !inherits(v, "IDate")) {
       set(DT, j = j, value = as.IDate(v))
       next
@@ -43,10 +60,7 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
       set(DT, j = j, value = encode_YN(v))
       next
     }
-    if (isEssentiallyLogical(v)) {
-      set(DT, j = j, value = as.logical(v))
-      next
-    }
+
     if (nomj == "Sex") {
       set(DT, j = "Sex", value = startsWith(v, "M"))
       setnames(DT, "Sex", "isMale")
@@ -76,6 +90,10 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
              "PrimaryWorkplace" = encode_PrimaryWorkplace(v),
              "LostToFollowUpReason" = encode_LostToFollowUpReason(v),
              "ClearedReason" = encode_ClearedReason(v),
+             "CountryOfBirthCALD" = encode_CountryOfBirthCALD(v),
+             "DiedDueToNotifiableCondition" = encode_DiedDueToNotifiableCondition(v),
+             "ClinicalStatus" = encode_ClinicalStatus(v),
+             "Severity" = encode_Severity(v),
              NULL)
     if (!is.null(oj)) {
       set(DT, j = j, value = oj)
@@ -83,9 +101,7 @@ Encode_linelist <- function(DT, do_copy = TRUE) {
   }
 
   # Unnecessary columns (or columns that may be inferred from others)
-
-
-  DT[, c("AgeAtOnset", "AgeGroupTenYr", "BroadAgeGroup", "Continent") := NULL]
+  hutils::drop_cols(DT, c("AgeAtOnset", "AgeGroupTenYr", "BroadAgeGroup", "Continent"))
 }
 
 

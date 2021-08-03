@@ -80,6 +80,36 @@
                               "Paramedic or patient transport officer", "Pharmacist"))
   hash_assign("HealthCareTable", HealthCareTable)
 
+  uDiedDueToNotifiableCondition <-
+    c(NA, "Alive", "Died due to the notifiable condition", "Died from other/unknown causes",
+     "Unknown")
+  hash_assign("uDiedDueToNotifiableCondition", uDiedDueToNotifiableCondition)
+
+  uClinicalStatus <-
+    c(NA,
+      "Under investigation",
+      "Admitted, not known to be in ICU",
+      "Admitted to ICU",
+      "Admitted to ICU, on ventilation",
+      "Deceased",
+      "Home isolation",
+      "Hotel detention",
+      "Hospital in the home",
+      "Lost to follow up",
+      "Well, isolation complete")
+  hash_assign("uClinicalStatus", uClinicalStatus)
+
+  uSeverity <-
+    c(NA,
+      "Asymptomatic",
+      "Symptomatic, not hospitalised",
+      "Admitted, not ICU",
+      "ICU",
+      "Died")
+  hash_assign("uSeverity", uSeverity)
+
+
+
 }
 
 

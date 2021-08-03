@@ -17,4 +17,10 @@ bool all_digits(const char * x, int nchari) ;
 int n_digits0(unsigned int x);
 int char2number(char x);
 
+// isntEquiRaw
+int isntEquiRaw(SEXP x, SEXP y);
+bool isntRaw(SEXP x);
+bool isntRawOrNull(SEXP x);
+int isntEquiInt(SEXP x, SEXP y);
+
 #endif
