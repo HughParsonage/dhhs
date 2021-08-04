@@ -25,6 +25,7 @@ extern SEXP CEncodeYN(SEXP);
 extern SEXP Cfast_nchar(SEXP);
 extern SEXP Cfilter_2raw(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP Cgrepl_09(SEXP);
+extern SEXP Cgrepl_ClusterCategory(SEXP, SEXP);
 extern SEXP Cgsub_09(SEXP);
 extern SEXP CStandardMobile(SEXP, SEXP, SEXP);
 extern SEXP Cuint2dbl(SEXP);
@@ -51,6 +52,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"Cfast_nchar",                    (DL_FUNC) &Cfast_nchar,                    1},
     {"Cfilter_2raw",                   (DL_FUNC) &Cfilter_2raw,                   5},
     {"Cgrepl_09",                      (DL_FUNC) &Cgrepl_09,                      1},
+    {"Cgrepl_ClusterCategory",         (DL_FUNC) &Cgrepl_ClusterCategory,         2},
     {"Cgsub_09",                       (DL_FUNC) &Cgsub_09,                       1},
     {"CStandardMobile",                (DL_FUNC) &CStandardMobile,                3},
     {"Cuint2dbl",                      (DL_FUNC) &Cuint2dbl,                      1},
