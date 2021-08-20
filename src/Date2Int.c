@@ -18,6 +18,10 @@ int is_leap_year(int year) {
   return 1;
 }
 
+bool endsWith2021(const char * x) {
+  return x[9] == '1' && x[6] == '2' && x[7] == '0' && x[8] == '2';
+}
+
 SEXP CDate2Int(SEXP xx) {
   R_xlen_t N = xlength(xx);
   if (!isString(xx)) {
@@ -28,7 +32,7 @@ SEXP CDate2Int(SEXP xx) {
 
   for (R_xlen_t i = 0; i < N; ++i) {
     int len = length(STRING_ELT(xx, i));
-    if (STRING_ELT(xx, i) == NA_STRING || len != 10) {
+    if (len != 10) {
       ansp[i] = NA_INTEGER;
       continue;
     }
@@ -37,20 +41,22 @@ SEXP CDate2Int(SEXP xx) {
     int mday = 0;
     int month = 0;
     int year = 0;
-
     mday += 10 * (x[0] - '0') + (x[1] - '0');
     month += (x[3] == '1' ? 10 : 0) + (x[4] - '0');
+    int o = IDAY_2020 - 1;
+    if (endsWith2021(x)) {
+      o += 365;
+      o += MONTHDAYC[month - 1] + mday;
+      ansp[i] = o;
+      continue;
+    }
+
     year += (x[6] - '0') * 1000;
     year += (x[7] - '0') * 100;
     year += (x[8] - '0') * 10;
     year += (x[9] - '0');
 
-    int is_leap_yr = ((year & 3u) == 0) && (year % 100);
-    is_leap_yr |= (year % 400) == 0;
-
     int yday = MONTHDAYC[month - 1] + mday + (is_leap_year(year) && month > 2);
-    int years_abv_2020 = year - 2020;
-    int o = IDAY_2020 - 1;
     if (year > 2020) {
       for (int y = 2020; y < year; ++y) {
         o += 365;
