@@ -45,7 +45,7 @@ SEXP CDate2Int(SEXP xx) {
     month += (x[3] == '1' ? 10 : 0) + (x[4] - '0');
     int o = IDAY_2020 - 1;
     if (endsWith2021(x)) {
-      o += 365;
+      o += 366; // 2020 was leap year
       o += MONTHDAYC[month - 1] + mday;
       ansp[i] = o;
       continue;

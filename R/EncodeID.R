@@ -10,7 +10,7 @@
 #' of \code{x} is amenable to the \code{cipher} provided? Has no effect if
 #' \code{cipher} is \code{NULL}. Setting this to \code{FALSE} with an incorrect
 #' cipher is undefined behaviour.
-#' @param enc An encoded version of the ID.
+#' @param e An encoded version of the ID.
 #' @param n A positive integer, the anticipated number of characters in each element of
 #' \code{x}. Set to 18 by default since most identifiers are width 18.
 #' @param check_for_na If \code{TRUE}, the default, \code{x} will be checked
@@ -41,13 +41,12 @@ encode_ID <- function(x, cipher = NULL, validate_cipher = TRUE, check_for_na = T
     return(x)
   }
   if (is.null(cipher)) {
-    cipher <- fwalnume(x)
+    cipher <- fwalnume(x, n = )
   } else {
     if (isTRUE(validate_cipher)) {
-      stopifnot(is.character(cipher))
       valid <- validate_fwalnume(x, cipher, check_for_na = check_for_na)
       if (valid) {
-        stop("Validation of `cipher = ", cipher, "` failed. ",
+        stop("Validation of `cipher = ", cipher[[1]], "` failed. ",
              "Element ", valid, " = '", x[valid], "' invalid.")
       }
     }
@@ -61,11 +60,15 @@ encode_ID <- function(x, cipher = NULL, validate_cipher = TRUE, check_for_na = T
 #' @export
 fwalnume <- function(x, n = 18L) {
   n <- ensure_integer(n)
-  .Call("CDetermine_fwalnum",
-        x, n, PACKAGE = packageName())
+  ans <- .Call("CDetermine_fwalnum", x, n, PACKAGE = packageName())
+  names(ans) <- c("cipher", "has_literal_numbers")
+  ans
 }
 
 validate_fwalnume <- function(x, cipher, check_for_na = TRUE) {
+  if (!is.atomic(cipher)) {
+    cipher <- cipher[[1]]
+  }
   stopifnot(is.character(x), is.character(cipher))
   if (isTRUE(check_for_na) && anyNA(x)) {
     return(which.max(is.na(x)))
@@ -79,6 +82,19 @@ cipher_of <- function(e) {
   attr(e, "dhhs_fwalnum_cipher")
 }
 
+#' @rdname encode_ID
+#' @export
 decode_ID <- function(e, cipher = cipher_of(e)) {
   .Call("CDecode_fwalnum", e, cipher, PACKAGE = packageName())
 }
+
+
+ciphers2list <- function(DT) {
+  ans <-
+    lapply(names(DT), function(j) {
+      cipher_of(.subset2(DT, j))
+    })
+  names(ans) <- copy(names(DT))
+  Filter(is.character, ans)
+}
+

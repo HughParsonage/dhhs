@@ -13,6 +13,68 @@ unsigned int alphnum2uint(char x) {
   return 10U + 26U + (x - 'a');
 }
 
+bool digit_trailing_spaces(const char * x, int n) {
+  if (x[n - 1] != ' ') {
+    return false;
+  }
+  int j = n - 1;
+  for (; j > 0; --j) {
+    if (x[j] != ' ') {
+      break;
+    }
+  }
+  for (; j >= 0; --j) {
+    if (!isdigit(x[j])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool digit_leading_spaces(const char * x, int n) {
+  bool digit = false;
+  for (int i = 0; i < n; ++i) {
+    if (digit && !isdigit(x[i])) {
+      return false;
+    }
+    if (!digit && x[i] != ' ') {
+      if (isdigit(x[i])) {
+        digit = true;
+      } else {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool only_digits_or_spaces(const char * x, int n) {
+  for (int i = 0; i < n; ++i) {
+    if (x[i] != ' ' && !isdigit(x[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+int nchar_max(SEXP x) {
+  if (!isString(x)) {
+    error("x must be type character.");
+  }
+  int max = 0;
+  R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    int n = length(xp[i]);
+    if (n > max) {
+      max = n;
+    }
+  }
+  return max;
+}
+
+
+
 SEXP CDetermine_fwalnum(SEXP x, SEXP MaxNchar) {
   if (TYPEOF(x) != STRSXP || TYPEOF(MaxNchar) != INTSXP) {
     error("Internal error(CDetermine_fwalnum): wrong types.");
@@ -21,41 +83,12 @@ SEXP CDetermine_fwalnum(SEXP x, SEXP MaxNchar) {
   if (N == 0) {
     return R_NilValue;
   }
-  unsigned char * not_na = malloc(sizeof(char) * N);
+  unsigned char * are_na = malloc(sizeof(char) * N);
   for (R_xlen_t i = 0; i < N; ++i) {
-    not_na[i] = STRING_ELT(x, i) != NA_STRING;
+    are_na[i] = STRING_ELT(x, i) == NA_STRING;
   }
-
-
-  int max_nchar_tmp = 1;
-  R_xlen_t first_non_na = 0;
-  if (TYPEOF(MaxNchar) != INTSXP || INTEGER(MaxNchar)[0] == NA_INTEGER) {
-    bool auto_maxnchar = TYPEOF(MaxNchar) == NILSXP;
-    auto_maxnchar |= TYPEOF(MaxNchar) == INTSXP && INTEGER(MaxNchar)[0] == NA_INTEGER;
-    if (auto_maxnchar) {
-      // User has requested max_nchar to be based of first non-NA string
-      max_nchar_tmp = length(STRING_ELT(x, first_non_na));
-      while (first_non_na < N &&
-             max_nchar_tmp == 2 &&
-             STRING_ELT(x, first_non_na) == NA_STRING) {
-        ++first_non_na;
-        max_nchar_tmp = length(STRING_ELT(x, first_non_na));
-      }
-      if (first_non_na == N) {
-        error("`n = NULL`, but x is full of NA.");
-      }
-    } else if (TYPEOF(MaxNchar) == REALSXP) {
-      max_nchar_tmp = (unsigned int)asReal(MaxNchar);
-    } else {
-      error("MaxNChar wrong type.");
-    }
-  } else {
-    max_nchar_tmp = asInteger(MaxNchar);
-  }
-  const int max_nchar = max_nchar_tmp;
-  if (max_nchar < 0) {
-    error("max_nchar is negative (possible NA).");
-  }
+  const int user_max_nchar = asInteger(MaxNchar);
+  const int max_nchar = user_max_nchar > 0 ? user_max_nchar : nchar_max(x);
   unsigned int any_nchar_ge = 0;
   unsigned int any_nchar_le = 0;
   // tbl[62*j + k] is 1 if string[k] is present at position j
@@ -63,8 +96,9 @@ SEXP CDetermine_fwalnum(SEXP x, SEXP MaxNchar) {
   if (tbl == NULL) {
     error("(Cdetermine_const_width_alnum_encoding): Unable to allocate tbl.");
   }
+  bool has_literal_numbers = false;
   for (R_xlen_t i = 0; i < N; ++i) {
-    if (STRING_ELT(x, i) == NA_STRING) {
+    if (are_na[i] == 1) {
       continue;
     }
 
@@ -72,13 +106,19 @@ SEXP CDetermine_fwalnum(SEXP x, SEXP MaxNchar) {
     unsigned int strleni = LENGTH(STRING_ELT(x, i));
     unsigned int base_tbl_j = 0;
     if (strleni == max_nchar) {
+      if (only_digits_or_spaces(xi, strleni)) {
+        has_literal_numbers = true;
+        continue; // ignore e.g. '1    '
+      }
       for (unsigned int c = 0; c < max_nchar; ++c) {
         unsigned int tbl_i_a = alphnum2uint(xi[c]);
         tbl[base_tbl_j + tbl_i_a] = 1;
         base_tbl_j += 62U;
       }
     } else if (strleni < max_nchar) {
-      any_nchar_le = i;
+      if (!all_digits(xi, strleni)) {
+        any_nchar_le = i;
+      }
     } else {
       any_nchar_ge = i;
     }
@@ -116,11 +156,16 @@ SEXP CDetermine_fwalnum(SEXP x, SEXP MaxNchar) {
   }
 
   free(tbl);
-  UNPROTECT(1);
-  return ans;
+
+  SEXP Ans = PROTECT(allocVector(VECSXP, 2));
+  SET_VECTOR_ELT(Ans, 0, ans);
+  SET_VECTOR_ELT(Ans, 1, ScalarLogical(has_literal_numbers));
+  UNPROTECT(2);
+  return Ans;
 }
 
-SEXP CValidate_fwalnum(SEXP x, SEXP ee) {
+SEXP CValidate_fwalnum(SEXP x, SEXP EE) {
+  SEXP ee = VECTOR_ELT(EE, 0);
   if (TYPEOF(x) != STRSXP || TYPEOF(ee) != STRSXP || xlength(ee) >= INT_MAX) {
     error("Internal error(Cvalidate_encoding): wrong input types.");
   }
@@ -193,7 +238,27 @@ SEXP CValidate_fwalnum(SEXP x, SEXP ee) {
   return o < INT_MAX ? ScalarInteger(o) : ScalarReal(o);
 }
 
-SEXP CEncode_fwalnum(SEXP x, SEXP ee) {
+void minmax_nchar(SEXP x, int minmax[2]) {
+  R_xlen_t N = xlength(x);
+  if (N == 0) {
+    minmax[0] = INT_MAX;
+    minmax[1] = 0;
+    return;
+  }
+  const SEXP * xp = STRING_PTR(x);
+  int min = length(xp[0]);
+  int max = length(xp[0]);
+  for (R_xlen_t i = 1; i < N; ++i) {
+    int n = length(xp[i]);
+    min = (min > n) ? min : n;
+    max = (min < n) ? max : n;
+  }
+  minmax[0] = min;
+  minmax[1] = max;
+}
+
+SEXP CEncode_fwalnum(SEXP x, SEXP EE) {
+  SEXP ee = VECTOR_ELT(EE, 0);
   if (TYPEOF(x) != STRSXP || TYPEOF(ee) != STRSXP || xlength(ee) >= INT_MAX) {
     error("Internal error(Calphnum_enc): wrong input types.");
   }
@@ -209,6 +274,8 @@ SEXP CEncode_fwalnum(SEXP x, SEXP ee) {
     char_non_const[j] = j_const;
     non_const += j_const;
   }
+  // J is an array that gives the character position
+  // of the k-th non-constant character
   unsigned int * J = malloc(sizeof(int) * non_const);
   if (J == NULL) {
     error("(Calphnum_enc)Unable to allocate J.");
@@ -244,10 +311,28 @@ SEXP CEncode_fwalnum(SEXP x, SEXP ee) {
       continue;
     }
     const char * xi = CHAR(STRING_ELT(x, i));
+    int ni = length(STRING_ELT(x, i));
+    if ((max_nchar >= 10 && ni < 10) || only_digits_or_spaces(xi, ni)) {
+      // just do int
+      ansp[i] = atoi(xi);
+      continue;
+    }
+
     unsigned int oi = 0;
     for (int k = 0; k < non_const; ++k) {
       unsigned int j = J[k];
-      unsigned char xij = xi[j];
+
+      //  0123456 <- j if max_nchar
+      //     0123 <- j
+      //     3456
+      // Consider max_nchar = 18 and j = 17 (i.e the last character)
+      // for a char 2 string we want the last string too (i.e. 1)
+      // for j = 16 we would want r = 0
+      unsigned int r = j - (max_nchar - ni);
+      if (r >= ni) {
+        continue; // technically an error
+      }
+      unsigned char xij = xi[r];
       unsigned int xiji = (unsigned int)xij;
       oi += V[256 * k + xiji];
     }
@@ -259,7 +344,10 @@ SEXP CEncode_fwalnum(SEXP x, SEXP ee) {
   return ans;
 }
 
-SEXP CDecode_fwalnum(SEXP x, SEXP ee) {
+SEXP CDecode_fwalnum(SEXP x, SEXP EE) {
+  SEXP ee = VECTOR_ELT(EE, 0);
+  SEXP ee1 = VECTOR_ELT(EE, 1);
+  const bool use_atoi = asLogical(ee1);
   if (TYPEOF(x) != INTSXP || TYPEOF(ee) != STRSXP || xlength(x) >= INT_MAX) {
     error("Internal error(Calphnum_dec): bad types.");
   }
@@ -310,6 +398,14 @@ SEXP CDecode_fwalnum(SEXP x, SEXP ee) {
 
   for (R_xlen_t i = 0; i < N; ++i) {
     unsigned int xi = (unsigned int)xp[i];
+    if (use_atoi && xi < 10000000) {
+      int n_digit = n_digits0(xi);
+      char oi[n_digit + 1];
+      sprintf(oi, "%d", xi);
+      const char * ansi = (const char *)oi;
+      SET_STRING_ELT(ans, i, mkChar(ansi));
+      continue;
+    }
     char oi[max_nchar1];
     memcpy(oi, default_c, sizeof(oi));
     for (unsigned int k = 0, b = 1; k < non_const; ++k) {

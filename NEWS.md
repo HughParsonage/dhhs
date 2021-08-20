@@ -1,3 +1,7 @@
+## dhhs 0.14.0
+
+* EncodeID now guarantees round trip for numeric (non-fixed with inputs)
+
 ## dhhs 0.10.0 (2021-07-29)
 
 ### Enhancements

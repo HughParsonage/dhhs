@@ -2,7 +2,7 @@
 
 SEXP CEncodeClassificationAcquired(SEXP Classification, SEXP Acquired) {
   R_xlen_t N = xlength(Classification);
-  if (N != xlength(Acquired)) {
+  if (N != xlength(Acquired) && xlength(Acquired) != 1) {
     error("`xlength(Classification) = %llu`, but xlength(Acquired) = %llu ", N, xlength(Acquired));
   }
   if (!isString(Classification) || !isString(Acquired)) {
@@ -12,15 +12,16 @@ SEXP CEncodeClassificationAcquired(SEXP Classification, SEXP Acquired) {
 
   const SEXP * cp = STRING_PTR(Classification);
   const SEXP * ap = STRING_PTR(Acquired);
+  const bool a0 = xlength(Acquired) == 1;
   SEXP ans = PROTECT(allocVector(INTSXP, N));
   int * restrict ansp = INTEGER(ans);
 
   for (R_xlen_t i = 0; i < N; ++i) {
     int nci = length(cp[i]);
-    int nai = length(ap[i]);
+    int nai = length(ap[a0 ? 0 : i]);
 
     const char * cpi = CHAR(cp[i]);
-    const char * api = CHAR(ap[i]);
+    const char * api = CHAR(ap[a0 ? 0 : i]);
     // create two integers based on the (likely) value of acquired and classification
     unsigned int oi = nai == 2;
     switch(api[0]) {

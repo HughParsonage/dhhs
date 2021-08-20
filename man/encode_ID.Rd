@@ -4,6 +4,7 @@
 \alias{encode_ID}
 \alias{fwalnume}
 \alias{cipher_of}
+\alias{decode_ID}
 \title{Encode fixed width encoding}
 \usage{
 encode_ID(x, cipher = NULL, validate_cipher = TRUE, check_for_na = TRUE)
@@ -11,13 +12,22 @@ encode_ID(x, cipher = NULL, validate_cipher = TRUE, check_for_na = TRUE)
 fwalnume(x, n = 18L)
 
 cipher_of(e)
+
+decode_ID(e, cipher = cipher_of(e))
 }
 \arguments{
 \item{x}{A character vector, the id to be encoded, such as \code{"5002P00000DqpeuQAB"}.}
 
-\item{cipher}{A character vector, whose length is the number of characters
+\item{cipher}{A list of two components.
+The first, acharacter vector, whose length is the number of characters
 in each identifier and each element of the vector comprises the number of
-characters. If \code{NULL}, the default, the cipher is determined from \code{x}.}
+characters.
+
+The second element of \code{cipher} is a boolean indicating whether or not
+the original character vector had literal numbers (which will be preserved
+if they are sufficiently small to be contained as \code{int32}).
+
+If \code{NULL}, the default, the cipher is determined from \code{x}.}
 
 \item{validate_cipher}{Should \code{cipher} be validated, ensuring that each element
 of \code{x} is amenable to the \code{cipher} provided? Has no effect if
@@ -30,7 +40,7 @@ for missing values first.}
 \item{n}{A positive integer, the anticipated number of characters in each element of
 \code{x}. Set to 18 by default since most identifiers are width 18.}
 
-\item{enc}{An encoded version of the ID.}
+\item{e}{An encoded version of the ID.}
 }
 \value{
 Each provides an interface to translate predictable character vectors
