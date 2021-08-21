@@ -8,6 +8,14 @@ test_that("encode_ID is invertible", {
 })
 
 test_that("encode_ID works with small numbers in character vectors", {
+  nos <- sample.int(1e4)
+  noc <- as.character(nos)
+  encoded <- encode_ID(noc)
+  decoded <- decode_ID(encoded)
+  expect_equal(as.integer(encoded), nos)
+  expect_equal(decoded, noc)
+
+
   String <- "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   Splits <- strsplit(String, split = "")[[1]]
 

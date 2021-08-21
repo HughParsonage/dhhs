@@ -116,7 +116,8 @@ SEXP CDetermine_fwalnum(SEXP x, SEXP MaxNchar) {
         base_tbl_j += 62U;
       }
     } else if (strleni < max_nchar) {
-      if (!all_digits(xi, strleni)) {
+      has_literal_numbers = all_digits(xi, strleni);
+      if (!has_literal_numbers) {
         any_nchar_le = i;
       }
     } else {
