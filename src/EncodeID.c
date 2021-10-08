@@ -1,17 +1,6 @@
 #include "dhhs.h"
 
-unsigned int alphnum2uint(char x) {
-  if (x < '0' || x > 'z') {
-    return 0U;
-  }
-  if (x <= '9') {
-    return x - '0';
-  }
-  if (x <= 'Z') {
-    return 10U + (x - 'A');
-  }
-  return 10U + 26U + (x - 'a');
-}
+
 
 bool digit_trailing_spaces(const char * x, int n) {
   if (x[n - 1] != ' ') {

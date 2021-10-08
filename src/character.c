@@ -88,3 +88,16 @@ int char2number(char x) {
   return xi <= 9u ? xi : 0;
 }
 
+unsigned int alphnum2uint(char x) {
+  if (x < '0' || x > 'z') {
+    return 0U;
+  }
+  if (x <= '9') {
+    return x - '0';
+  }
+  if (x <= 'Z') {
+    return 10U + (x - 'A');
+  }
+  return 10U + 26U + (x - 'a');
+}
+
