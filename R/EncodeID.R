@@ -3,9 +3,16 @@
 #' \code{RecordID} character vectors of alphanumeric strings.
 #'
 #' @param x A character vector, the id to be encoded, such as \code{"5002P00000DqpeuQAB"}.
-#' @param cipher A character vector, whose length is the number of characters
+#' @param cipher A list of two components.
+#' The first, acharacter vector, whose length is the number of characters
 #' in each identifier and each element of the vector comprises the number of
-#' characters. If \code{NULL}, the default, the cipher is determined from \code{x}.
+#' characters.
+#'
+#' The second element of \code{cipher} is a boolean indicating whether or not
+#' the original character vector had literal numbers (which will be preserved
+#' if they are sufficiently small to be contained as \code{int32}).
+#'
+#' If \code{NULL}, the default, the cipher is determined from \code{x}.
 #' @param validate_cipher Should \code{cipher} be validated, ensuring that each element
 #' of \code{x} is amenable to the \code{cipher} provided? Has no effect if
 #' \code{cipher} is \code{NULL}. Setting this to \code{FALSE} with an incorrect
@@ -95,6 +102,30 @@ ciphers2list <- function(DT) {
       cipher_of(.subset2(DT, j))
     })
   names(ans) <- copy(names(DT))
-  Filter(is.character, ans)
+  Filter(Negate(is.null), ans)
+}
+
+
+CC_Encode2 <- function(x, y = NULL) {
+  if (is.null(y)) {
+    y <- fwalnume(x, n = 18L)[[1]]
+  }
+  .Call("C_Encode2", x, y, PACKAGE = packageName())
+}
+
+CC_Decode2 <- function(x, y) {
+  .Call("C_Decode2", x, y, PACKAGE = packageName())
+}
+
+CC_Atoi2 <- function(x) {
+  .Call("CC_Atoi", x, PACKAGE = packageName())
+}
+
+Encode_RecordID_2109 <- function(x) {
+  .Call("CEncode_RecordID_2109", x, PACKAGE = packageName())
+}
+
+CC_isntRecordID2109 <- function(x) {
+  .Call("isntRecordID2109", x, PACKAGE = packageName())
 }
 
