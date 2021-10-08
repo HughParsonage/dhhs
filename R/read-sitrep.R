@@ -123,7 +123,7 @@ sitrep_file <- function(view = .views_avbl(),
   if (fst) {
     fst_dir <- Sys.getenv("R_DHHS_SITREP_FST_TRUNK")
     if (fst_dir == "") {
-      if ("D:" %notin% windows_disks()) {
+      if (is_windows() && "D:" %notin% windows_disks()) {
         fst_dir <- tempfile()
       } else {
         fst_dir <- file.path("D:/sitrep-fst-trunk", "fst")
@@ -144,7 +144,18 @@ sitrep_file <- function(view = .views_avbl(),
              "latest" = "latest",
              "hour" = "latest")
 
-    OLD_TXT_PATH <- "E:/PBIX/NCoronavirus 2020/Stata nCoV reporting/31 Azure Data Model/DART/Data snapshots"
+    OLD_TXT_PATH <-
+      local({
+        SS <- c("PB", "NC", "St", "31", "DA", "Da")
+        out <- "E:/"
+        for (s in SS) {
+          the_dirs <- list.dirs(out, recursive = FALSE, full.names = FALSE)
+          the_next <- the_dirs[startsWith(the_dirs, s)]
+          out <- file.path(out, the_next[1])
+        }
+        out
+      })
+
     outd <-
       file.path(Sys.getenv("R_DHHS_SITREP_TXT_TRUNK",
                            unset = OLD_TXT_PATH),
@@ -486,6 +497,34 @@ write_sitrep_fst <- function(DT, file.fst, ucx_threshold = 1000L, compress = 50)
 
   fst::write_fst(DT, file.fst, compress = compress)
 }
+
+write_sitrep_fst14 <- function(DT, file, compress = 50) {
+  hutils::provide.file(file)
+  if (!is.data.table(DT)) {
+    qs::qsave(DT, ext2ext(file, ".qs"))
+    return(invisible(DT))
+  }
+  Ciphers <- ciphers2list(DT)
+  qs::qsave(Ciphers, file = ext2ext(file, ".Ciphers.qs"))
+  fst::write_fst(DT, file, compress = compress)
+  return(invisible(DT))
+}
+
+read_sitrep_fst14 <- function(file, columns = NULL) {
+  Ciphers <- qs::qread(ext2ext(file, ".Ciphers.qs"))
+  ans <- fst::read_fst(file, columns = columns, as.data.table = TRUE)
+  for (j in names(Ciphers)) {
+    if (hasName(ans, j)) {
+      setattr(.subset2(ans, j), "dhhs_fwalnum_cipher", Ciphers[[j]])
+    }
+  }
+  ans[]
+}
+
+
+
+
+
 
 decode_sitrep <- function(DT, uds = NULL, file.u.rds = NULL) {
   if (is.null(uds) && is.null(file.u.rds)) {
