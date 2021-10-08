@@ -9,6 +9,9 @@
 #include <math.h>
 #include <ctype.h>
 
+// allocate.c
+SEXP logicalN(R_xlen_t N, int a);
+
 // character.c
 bool char_is_number(char x);
 int char12_to_int(const char * x);
@@ -16,6 +19,7 @@ int char2int(const char * x, int s);
 bool all_digits(const char * x, int nchari) ;
 int n_digits0(unsigned int x);
 int char2number(char x);
+unsigned int alphnum2uint(char x);
 
 // isntEquiRaw
 int isntEquiRaw(SEXP x, SEXP y);

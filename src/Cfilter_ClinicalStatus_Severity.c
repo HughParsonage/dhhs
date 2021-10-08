@@ -90,20 +90,27 @@ SEXP Cfilter_2raw(SEXP x, SEXP y,
       unsigned char xpi = xp[i];
       unsigned char ypi = yp[i];
       bool o = xpi == tx0 && ypi == ty0; // most common case (1,1)
-      for (int j = 1; j < Mx; ++j) {
-        if (o) {
+      if (o) {
+        ansp[i] = 1;
+        continue;
+      }
+      for (int j = 0; j < Mx; ++j) {
+        unsigned char txj = txp[j];
+        if (txj == xpi) {
+          o = true;
           break;
         }
-        unsigned char txj = txp[j];
-        if (txj != xpi) {
-          continue;
-        }
-        for (int k = 1; k < My; ++k) {
-          unsigned char tyk = typ[k];
-          if (tyk == ypi) {
-            o = true;
-            break;
-          }
+      }
+      if (!o) {
+        ansp[i] = 0;
+        continue;
+      }
+      o = false;
+      for (int k = 0; k < My; ++k) {
+        unsigned char tyk = typ[k];
+        if (tyk == ypi) {
+          o = true;
+          break;
         }
       }
       ansp[i] = o;
@@ -113,21 +120,26 @@ SEXP Cfilter_2raw(SEXP x, SEXP y,
       unsigned char xpi = xp[i];
       unsigned char ypi = yp[i];
       bool o = xpi == tx0 || ypi == ty0; // most common case (1,1)
-      for (int j = 1; j < Mx; ++j) {
-        if (o) {
-          break;
-        }
+      if (o) {
+        ansp[i] = 1;
+        continue;
+      }
+      for (int j = 0; j < Mx; ++j) {
         unsigned char txj = txp[j];
         if (txj == xpi) {
           o = true;
           break;
         }
-        for (int k = 1; k < My; ++k) {
-          unsigned char tyk = typ[k];
-          if (tyk == ypi) {
-            o = true;
-            break;
-          }
+      }
+      if (o) {
+        ansp[i] = 1;
+        continue;
+      }
+      for (int k = 0; k < My; ++k) {
+        unsigned char tyk = typ[k];
+        if (tyk == ypi) {
+          o = true;
+          break;
         }
       }
       ansp[i] = o;
