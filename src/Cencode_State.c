@@ -70,6 +70,33 @@ SEXP Cencode_State(SEXP State, SEXP o) {
         op[i] = STE_NSW;
         continue;
       }
+      if (n == 17) {
+        // 'Western Australia'
+        op[i] = STE_WA;
+        continue;
+      }
+      if (n == 18) {
+        op[i] = STE_NT;
+        continue;
+      }
+      const char xp1 = xp[1];
+      const char xp2 = xp[2];
+      switch(xp0) {
+      case 'W':
+        if ((xp1 == 'e' || xp1 == 'E') &&
+            (xp2 == 's' || xp1 == 'S')) {
+          // 'Western Australia'
+          op[i] = STE_WA;
+        }
+        break;
+      case 'S':
+        if ((xp1 == 'o' || xp1 == 'O') &&
+            (xp2 == 'u' || xp1 == 'U')) {
+          op[i] = STE_SA;
+        }
+      }
+
+
     }
 
 
@@ -98,5 +125,42 @@ SEXP Cdecode_State(SEXP x, SEXP uSTE) {
   UNPROTECT(1);
   return ans;
 }
+
+
+
+SEXP CFilter_STE_in(SEXP x, SEXP y, SEXP Not) {
+  if (isntRaw(x) || isntRaw(y)) {
+    error("Internal error(CFilter_STE_in): x or y not RAWSXP."); // # nocov
+  }
+
+  R_xlen_t N = xlength(x);
+  int m = length(y);
+  if (m > 9) {
+    error("Internal error(CFilter_STE): m > 9 (likely duplicated elements to y)");
+  }
+  const bool no = asLogical(Not);
+  if (m == 9) {
+    // All elements are valid or all elements are invalid
+    return logicalN(N, no ? 0 : 1);
+  }
+  const unsigned char * yp = RAW(y);
+  // just lookup each value
+  bool w[16] = {no ? 1 : 0};
+  for (int j = 0; j < m; ++j) {
+    unsigned int ypj = yp[j];
+    w[ypj & 15] = no ? 0 : 1;
+  }
+  const unsigned char * xp = RAW(x);
+  SEXP ans = PROTECT(allocVector(LGLSXP, N));
+  int * restrict ansp = LOGICAL(ans);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    unsigned int xpi = xp[i];
+    ansp[i] = w[xpi & 15];
+  }
+  UNPROTECT(1);
+  return ans;
+
+}
+
 
 
