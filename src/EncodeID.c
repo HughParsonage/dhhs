@@ -154,8 +154,7 @@ SEXP CDetermine_fwalnum(SEXP x, SEXP MaxNchar) {
   return Ans;
 }
 
-SEXP CValidate_fwalnum(SEXP x, SEXP EE) {
-  SEXP ee = VECTOR_ELT(EE, 0);
+SEXP CValidate_fwalnum(SEXP x, SEXP ee) {
   if (TYPEOF(x) != STRSXP || TYPEOF(ee) != STRSXP || xlength(ee) >= INT_MAX) {
     error("Internal error(Cvalidate_encoding): wrong input types.");
   }
@@ -414,4 +413,238 @@ SEXP CDecode_fwalnum(SEXP x, SEXP EE) {
   UNPROTECT(1);
   return ans;
 }
+
+unsigned int e18j(char x, const char * e, int n) {
+  if (n <= 1) {
+    return 0;
+  }
+  unsigned int j = 0;
+  while (e[j] != x) {
+    ++j;
+  }
+  // while (j < n && e[j] != x) {
+  //   ++j;
+  // }
+  return j;
+}
+
+
+
+SEXP C_Encode2(SEXP x, SEXP y) {
+  R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+  if (length(y) != 18) {
+    error("(C_Encode2): length(y) != 18.");
+  }
+  const SEXP * yp = STRING_PTR(y);
+
+  const char * e00 = CHAR(yp[0]);
+  const unsigned int n00 = length(yp[0]);
+  const char * e01 = CHAR(yp[1]);
+  const unsigned int n01 = length(yp[1]);
+  const char * e02 = CHAR(yp[2]);
+  const unsigned int n02 = length(yp[2]);
+  const char * e03 = CHAR(yp[3]);
+  const unsigned int n03 = length(yp[3]);
+  const char * e04 = CHAR(yp[4]);
+  const unsigned int n04 = length(yp[4]);
+  const char * e05 = CHAR(yp[5]);
+  const unsigned int n05 = length(yp[5]);
+  const char * e06 = CHAR(yp[6]);
+  const unsigned int n06 = length(yp[6]);
+  const char * e07 = CHAR(yp[7]);
+  const unsigned int n07 = length(yp[7]);
+  const char * e08 = CHAR(yp[8]);
+  const unsigned int n08 = length(yp[8]);
+  const char * e09 = CHAR(yp[9]);
+  const unsigned int n09 = length(yp[9]);
+  const char * e10 = CHAR(yp[10]);
+  const unsigned int n10 = length(yp[10]);
+  const char * e11 = CHAR(yp[11]);
+  const unsigned int n11 = length(yp[11]);
+  const char * e12 = CHAR(yp[12]);
+  const unsigned int n12 = length(yp[12]);
+  const char * e13 = CHAR(yp[13]);
+  const unsigned int n13 = length(yp[13]);
+  const char * e14 = CHAR(yp[14]);
+  const unsigned int n14 = length(yp[14]);
+  const char * e15 = CHAR(yp[15]);
+  const unsigned int n15 = length(yp[15]);
+  const char * e16 = CHAR(yp[16]);
+  const unsigned int n16 = length(yp[16]);
+  const char * e17 = CHAR(yp[17]);
+  const unsigned int n17 = length(yp[17]);
+
+
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+
+  for (R_xlen_t i = 0; i < N; ++i) {
+    int n = length(xp[i]);
+    if (n != 18) {
+      ansp[i] = atoi(xp[i]);
+      continue;
+    }
+    const char * xi = CHAR(xp[i]);
+    unsigned int o = 0;
+
+    o *= n00;
+    o += e18j(xi[0], e00, n00);
+    o *= n01;
+    o += e18j(xi[1], e01, n01);
+    o *= n02;
+    o += e18j(xi[2], e02, n02);
+    o *= n03;
+    o += e18j(xi[3], e03, n03);
+    o *= n04;
+    o += e18j(xi[4], e04, n04);
+    o *= n05;
+    o += e18j(xi[5], e05, n05);
+    o *= n06;
+    o += e18j(xi[6], e06, n06);
+    o *= n07;
+    o += e18j(xi[7], e07, n07);
+    o *= n08;
+    o += e18j(xi[8], e08, n08);
+    o *= n09;
+    o += e18j(xi[9], e09, n09);
+    o *= n10;
+    o += e18j(xi[10], e10, n10);
+    o *= n11;
+    o += e18j(xi[11], e11, n11);
+    o *= n12;
+    o += e18j(xi[12], e12, n12);
+    o *= n13;
+    o += e18j(xi[13], e13, n13);
+    o *= n14;
+    o += e18j(xi[14], e14, n14);
+    o *= n15;
+    o += e18j(xi[15], e15, n15);
+    o *= n16;
+    o += e18j(xi[16], e16, n16);
+    o *= n17;
+    o += e18j(xi[17], e17, n17);
+    ansp[i] = o;
+  }
+  UNPROTECT(1);
+  return ans;
+}
+
+
+SEXP C_Decode2(SEXP x, SEXP y) {
+  R_xlen_t N = xlength(x);
+  const int * xp = INTEGER(x);
+  if (length(y) != 18) {
+    error("(C_Encode2): length(y) != 18.");
+  }
+  const SEXP * yp = STRING_PTR(y);
+
+  const char * e00 = CHAR(yp[0]);
+  const unsigned int n00 = length(yp[0]);
+  const char * e01 = CHAR(yp[1]);
+  const unsigned int n01 = length(yp[1]);
+  const char * e02 = CHAR(yp[2]);
+  const unsigned int n02 = length(yp[2]);
+  const char * e03 = CHAR(yp[3]);
+  const unsigned int n03 = length(yp[3]);
+  const char * e04 = CHAR(yp[4]);
+  const unsigned int n04 = length(yp[4]);
+  const char * e05 = CHAR(yp[5]);
+  const unsigned int n05 = length(yp[5]);
+  const char * e06 = CHAR(yp[6]);
+  const unsigned int n06 = length(yp[6]);
+  const char * e07 = CHAR(yp[7]);
+  const unsigned int n07 = length(yp[7]);
+  const char * e08 = CHAR(yp[8]);
+  const unsigned int n08 = length(yp[8]);
+  const char * e09 = CHAR(yp[9]);
+  const unsigned int n09 = length(yp[9]);
+  const char * e10 = CHAR(yp[10]);
+  const unsigned int n10 = length(yp[10]);
+  const char * e11 = CHAR(yp[11]);
+  const unsigned int n11 = length(yp[11]);
+  const char * e12 = CHAR(yp[12]);
+  const unsigned int n12 = length(yp[12]);
+  const char * e13 = CHAR(yp[13]);
+  const unsigned int n13 = length(yp[13]);
+  const char * e14 = CHAR(yp[14]);
+  const unsigned int n14 = length(yp[14]);
+  const char * e15 = CHAR(yp[15]);
+  const unsigned int n15 = length(yp[15]);
+  const char * e16 = CHAR(yp[16]);
+  const unsigned int n16 = length(yp[16]);
+  const char * e17 = CHAR(yp[17]);
+  const unsigned int n17 = length(yp[17]);
+
+  SEXP ans = PROTECT(allocVector(STRSXP, N));
+
+  for (R_xlen_t i = 0; i < N; ++i) {
+    unsigned int ei = xp[i];
+    char o[19];
+    o[17] = e17[ei % n17];
+    ei /= n17;
+    o[16] = e16[ei % n16];
+    ei /= n16;
+    o[15] = e15[ei % n15];
+    ei /= n15;
+    o[14] = e14[ei % n14];
+    ei /= n14;
+    o[13] = e13[ei % n13];
+    ei /= n13;
+    o[12] = e12[ei % n12];
+    ei /= n12;
+    o[11] = e11[ei % n11];
+    ei /= n11;
+    o[10] = e10[ei % n10];
+    ei /= n10;
+    o[9] = e09[ei % n09];
+    ei /= n09;
+    o[8] = e08[ei % n08];
+    ei /= n08;
+    o[7] = e07[ei % n07];
+    ei /= n07;
+    o[6] = e06[ei % n06];
+    ei /= n06;
+    o[5] = e05[ei % n05];
+    ei /= n05;
+    o[4] = e04[ei % n04];
+    ei /= n04;
+    o[3] = e03[ei % n03];
+    ei /= n03;
+    o[2] = e02[ei % n02];
+    ei /= n02;
+    o[1] = e01[ei % n01];
+    ei /= n01;
+    o[0] = e00[0];
+    o[18] = '\0';
+    SET_STRING_ELT(ans, i, mkChar((const char *)o));
+  }
+  UNPROTECT(1);
+  return ans;
+}
+
+SEXP CC_Atoi(SEXP x) {
+  const SEXP * xp = STRING_PTR(x);
+  R_xlen_t N = xlength(x);
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    const char * xi = CHAR(xp[i]);
+    char x0 = xi[0];
+    if (x0 >= '1' && x0 <= '9') {
+      ansp[i] = atoi(xi);
+    } else {
+      ansp[i] = NA_INTEGER;
+    }
+  }
+  UNPROTECT(1);
+  return ans;
+}
+
+
+
+
+
+
+
 
