@@ -9,3 +9,4 @@
 !*.Rd
 !*/man/*.Rd
 
+packrat/lib*/
