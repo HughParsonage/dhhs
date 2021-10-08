@@ -2,9 +2,12 @@
 % Please edit documentation in R/Date2Int.R
 \name{ddmmyyyy2Int}
 \alias{ddmmyyyy2Int}
-\title{Convert a date in dd/mm/YYYY form to a standard integer}
+\alias{yyyymmdd2Int}
+\title{Convert a date to a standard integer}
 \usage{
 ddmmyyyy2Int(x)
+
+yyyymmdd2Int(x)
 }
 \arguments{
 \item{x}{A date in \code{dd/mm/YYYY} format.}

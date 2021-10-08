@@ -4,6 +4,7 @@ const static int MONTHDAYS[13] = {0, 31, 28, 31,  30,  31,  30,  31,  31,  30,  
 const static int MONTHDAYC[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 
 const static int IDAY_2020 = 18262;
+const static int IDAY_2021 = 18628;
 
 int is_leap_year(int year) {
   if (year < 0 || year % 4) {
@@ -32,7 +33,7 @@ SEXP CDate2Int(SEXP xx) {
 
   for (R_xlen_t i = 0; i < N; ++i) {
     int len = length(STRING_ELT(xx, i));
-    if (len != 10) {
+    if (len < 10) {
       ansp[i] = NA_INTEGER;
       continue;
     }
@@ -74,4 +75,59 @@ SEXP CDate2Int(SEXP xx) {
   }
   UNPROTECT(1);
   return ans;
+}
+
+
+SEXP C_yyyy_mm_dd(SEXP xx) {
+  R_xlen_t N = xlength(xx);
+  const SEXP * xp = STRING_PTR(xx);
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    int n = length(xp[i]);
+    if (n < 10) {
+      ansp[i] = NA_INTEGER;
+      continue;
+    }
+    const char * x = CHAR(xp[i]);
+    int year = atoi(x);
+    if (year == 2021) {
+      int o = IDAY_2021 - 1;
+      int month = (x[5] == '1' ? 10 : 0) + (x[6] - '0');
+      int mday = 10 * (x[8] - '0') + (x[9] - '0');
+      o += MONTHDAYC[month - 1] + mday;
+      ansp[i] = o;
+      continue;
+    }
+
+    if (year == 2020) {
+      int o = IDAY_2020 - 1;
+      int month = (x[5] == '1' ? 10 : 0) + (x[6] - '0');
+      int mday = 10 * (x[8] - '0') + (x[9] - '0');
+      o += MONTHDAYC[month - 1] + mday + (month > 2);
+      ansp[i] = o;
+      continue;
+    }
+    int o = IDAY_2020 - 1;
+    if (year > 2020) {
+      for (int y = 2020; y < year; ++y) {
+        o += 365;
+        o += is_leap_year(y);
+      }
+    }
+    if (year < 2020) {
+      for (int y = year; y < 2020; ++y) {
+        o -= 365;
+        o -= is_leap_year(y);
+      }
+    }
+
+    int month = (x[5] == '1' ? 10 : 0) + (x[6] - '0');
+    int mday = 10 * (x[8] - '0') + (x[9] - '0');
+    o += MONTHDAYC[month - 1] + mday;
+    ansp[i] = o;
+  }
+  UNPROTECT(1);
+  return ans;
+
 }
