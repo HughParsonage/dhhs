@@ -1,4 +1,4 @@
-#' Convert a date in dd/mm/YYYY form to a standard integer
+#' Convert a date to a standard integer
 #' @description For efficient memory consumption
 #'
 #' @param x A date in \code{dd/mm/YYYY} format.
@@ -21,4 +21,14 @@ ddmmyyyy2Int <- function(x) {
     return(as.integer(x))
   }
   .Call("CDate2Int", x, PACKAGE = packageName())
+}
+
+
+#' @rdname ddmmyyyy2Int
+#' @export
+yyyymmdd2Int <- function(x) {
+  if (inherits(x, "Date")) {
+    return(as.integer(x))
+  }
+  .Call("C_yyyy_mm_dd", x, PACKAGE = packageName())
 }
