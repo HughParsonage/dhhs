@@ -6,11 +6,10 @@
   dhhs_env <- getOption("dhhs_env")
   hash_assign <- function(nom, value, envir = dhhs_env) {
     opt_nom <- paste0("dhhs_", nom)
-    tbl <- value
+    tbl <- value <- unique(value)
     fastmatch::fmatch(value, tbl)
     assign(nom, value = value, envir = envir)
   }
-
 
   uRecordType <-
     c("Acquisition Contact",
@@ -82,7 +81,7 @@
 
   uDiedDueToNotifiableCondition <-
     c(NA, "Alive", "Died due to the notifiable condition", "Died from other/unknown causes",
-     "Unknown")
+      "Unknown")
   hash_assign("uDiedDueToNotifiableCondition", uDiedDueToNotifiableCondition)
 
   uClinicalStatus <-
@@ -107,6 +106,32 @@
       "ICU",
       "Died")
   hash_assign("uSeverity", uSeverity)
+
+  uClassification <-
+    c(NA,
+      "Acquisition contact",
+      "Casual contact",
+      "Confirmed",
+      "Contact - active",
+      "Historical",
+      "Not notifiable",
+      "Probable",
+      "Rejected",
+      "Rejected - no testing",
+      "Rejected after testing",
+      "Rejected - contact > 14 days",
+      "Secondary contact - active",
+      "Secondary contact - rejected",
+      "At Risk",
+      "Suspected",
+      "Notifiable")
+
+  uAcquired <-
+    c(NA, "Travel overseas", "Contact with a confirmed case",
+      "Acquired in Australia, unknown source", "Under investigation")
+
+  hash_assign("uClassification", uClassification)
+  hash_assign("uAcquired", uAcquired)
 
 
 

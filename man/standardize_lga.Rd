@@ -2,10 +2,13 @@
 % Please edit documentation in R/standardize_lga.R
 \name{standardize_lga}
 \alias{standardize_lga}
+\alias{encode_lga}
 \alias{get_lga_names16}
 \title{Standarize LGA Names}
 \usage{
 standardize_lga(x)
+
+encode_lga(lga)
 
 get_lga_names16(.dt = TRUE)
 }
@@ -15,7 +18,7 @@ get_lga_names16(.dt = TRUE)
 \item{.dt}{(Internal use only, whether to return a \code{data.table} instead of a character vector.)}
 }
 \value{
-The character vector \code{x} but with best-guess standard names, where the LGA 
+The character vector \code{x} but with best-guess standard names, where the LGA
 in \code{x} was not present in the LGA 2016 series.
 }
 \description{
