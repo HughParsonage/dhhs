@@ -4,9 +4,9 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-DHHS package reads PHESS data
+Various functions.
 
 ## Installation
 
-Not generally available.
+From Github
 
