@@ -32,3 +32,13 @@ yyyymmdd2Int <- function(x) {
   }
   .Call("C_yyyy_mm_dd", x, PACKAGE = packageName())
 }
+
+
+yyyymmdd_HHMMSS_UTC <- function(x) {
+  if (inherits(x, "POSIXct")) {
+    return(as.integer(x))
+  }
+  .Call("C_yyyy_mm_dd_HHMMSS_UTC", x, PACKAGE = packageName())
+}
+
+

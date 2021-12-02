@@ -2,15 +2,22 @@
 % Please edit documentation in R/fast_nchar.R
 \name{fast_nchar}
 \alias{fast_nchar}
+\alias{max_nchar}
 \title{Fast nchar that can be used on integers and strings}
 \usage{
 fast_nchar(x)
+
+max_nchar(x)
 }
 \arguments{
 \item{x}{Either an integer or character vector.}
 }
 \value{
-Same as \code{nchar(x)}
+Same as \code{nchar(x)}.
+
+\code{max_nchar(x)} returns the \code{max(nchar(x))}
+with the exception that length-zero inputs return zero, not \code{-Inf},
+since negative-length strings are not possible.
 }
 \description{
 Fast nchar that can be used on integers and strings

@@ -42,3 +42,29 @@ SEXP Cfast_nchar(SEXP x) {
   UNPROTECT(1);
   return ans;
 }
+
+int max_nchar(SEXP x) {
+
+  if (!isString(x)) {
+    error("`x` was type '%s' but must be character.", type2char(TYPEOF(x)));
+  }
+  R_xlen_t N = xlength(x);
+  if (N == 0) {
+    return 0; // not INT_MIN because negative nchar not possible
+  }
+  const SEXP * xp = STRING_PTR(x);
+  int o = length(xp[0]);
+  for (R_xlen_t i = 1; i < N; ++i) {
+    int n = length(xp[i]);
+    if (o < n) {
+      o = n;
+    }
+  }
+  return o;
+}
+
+SEXP Cmax_nchar(SEXP x) {
+  return ScalarInteger(max_nchar(x));
+}
+
+

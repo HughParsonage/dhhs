@@ -1,7 +1,12 @@
 #' Fast nchar that can be used on integers and strings
 #' @param x Either an integer or character vector.
 #'
-#' @return Same as \code{nchar(x)}
+#' @return Same as \code{nchar(x)}.
+#'
+#' \code{max_nchar(x)} returns the \code{max(nchar(x))}
+#' with the exception that length-zero inputs return zero, not \code{-Inf},
+#' since negative-length strings are not possible.
+#'
 #' @export
 
 fast_nchar <- function(x) {
@@ -11,3 +16,12 @@ fast_nchar <- function(x) {
   }
   ans
 }
+
+#' @rdname fast_nchar
+#' @export
+max_nchar <- function(x) {
+  .Call("Cmax_nchar", x, PACKAGE = packageName())
+}
+
+
+

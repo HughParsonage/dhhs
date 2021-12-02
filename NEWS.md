@@ -1,3 +1,8 @@
+## dhhs 0.17.0
+
+* New functions:
+  - yyyymmdd_HHMMSS_UTC
+
 ## dhhs 0.14.0
 
 * EncodeID now guarantees round trip for numeric (non-fixed with inputs)
