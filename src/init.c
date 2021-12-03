@@ -8,6 +8,7 @@
 */
 
 /* .Call calls */
+extern SEXP C_const_nchar(SEXP);
 extern SEXP C_Decode2(SEXP, SEXP);
 extern SEXP C_Encode2(SEXP, SEXP);
 extern SEXP C_EncodeDateTime(SEXP, SEXP);
@@ -47,6 +48,7 @@ extern SEXP Cwhich_isnt_int(SEXP);
 extern SEXP isntRecordID2109(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
+    {"C_const_nchar",                   (DL_FUNC) &C_const_nchar,                   1},
     {"C_Decode2",                       (DL_FUNC) &C_Decode2,                       2},
     {"C_Encode2",                       (DL_FUNC) &C_Encode2,                       2},
     {"C_EncodeDateTime",                (DL_FUNC) &C_EncodeDateTime,                2},

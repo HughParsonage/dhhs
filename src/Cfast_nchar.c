@@ -67,4 +67,27 @@ SEXP Cmax_nchar(SEXP x) {
   return ScalarInteger(max_nchar(x));
 }
 
+int is_const_nchar(SEXP x) {
+  R_xlen_t N = xlength(x);
+  if (N == 0) {
+    return 0;
+  }
+  if (!isString(x)) {
+    return -1;
+  }
+  const SEXP * xp = STRING_PTR(x);
+  int o = length(xp[0]);
+  for (int i = 1; i < N; ++i) {
+    if (length(xp[i]) != o) {
+      return -1;
+    }
+  }
+
+  return o;
+}
+
+SEXP C_const_nchar(SEXP x) {
+  return ScalarInteger(is_const_nchar(x));
+}
+
 

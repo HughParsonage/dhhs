@@ -3,11 +3,14 @@
 \name{fast_nchar}
 \alias{fast_nchar}
 \alias{max_nchar}
+\alias{const_nchar}
 \title{Fast nchar that can be used on integers and strings}
 \usage{
 fast_nchar(x)
 
 max_nchar(x)
+
+const_nchar(x)
 }
 \arguments{
 \item{x}{Either an integer or character vector.}
@@ -18,6 +21,9 @@ Same as \code{nchar(x)}.
 \code{max_nchar(x)} returns the \code{max(nchar(x))}
 with the exception that length-zero inputs return zero, not \code{-Inf},
 since negative-length strings are not possible.
+
+\code{const_nchar} returns the width of every string in \code{x} if and only
+if every element's width is the same. Otherwise, \code{-1}.
 }
 \description{
 Fast nchar that can be used on integers and strings

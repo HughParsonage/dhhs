@@ -7,6 +7,9 @@
 #' with the exception that length-zero inputs return zero, not \code{-Inf},
 #' since negative-length strings are not possible.
 #'
+#' \code{const_nchar} returns the width of every string in \code{x} if and only
+#' if every element's width is the same. Otherwise, \code{-1}.
+#'
 #' @export
 
 fast_nchar <- function(x) {
@@ -23,5 +26,9 @@ max_nchar <- function(x) {
   .Call("Cmax_nchar", x, PACKAGE = packageName())
 }
 
-
+#' @rdname fast_nchar
+#' @export
+const_nchar <- function(x) {
+  .Call("C_const_nchar", x, PACKAGE = packageName())
+}
 

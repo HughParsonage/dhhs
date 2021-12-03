@@ -1,7 +1,8 @@
 ## dhhs 0.17.0
 
 * New functions:
-  - yyyymmdd_HHMMSS_UTC
+  - `yyyymmdd_HHMMSS_UTC`
+  - `const_nchar`
 
 ## dhhs 0.14.0
 
