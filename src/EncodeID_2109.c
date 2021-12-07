@@ -97,14 +97,14 @@ R_xlen_t isnt_RecordID_2109(SEXP x) {
       unsigned char x7 = xi[7];
       unsigned char x8 = xi[8];
       unsigned char x9 = xi[9];
-      unsigned char x10 = xi[10];
-      unsigned char x11 = xi[11];
-      unsigned char x12 = xi[12];
-      unsigned char x13 = xi[13];
-      unsigned char x14 = xi[14];
+      // unsigned char x10 = xi[10];
+      // unsigned char x11 = xi[11];
+      // unsigned char x12 = xi[12];
+      // unsigned char x13 = xi[13];
+      // unsigned char x14 = xi[14];
       unsigned char x15 = xi[15];
       unsigned char x16 = xi[16];
-      unsigned char x17 = xi[17];
+      // unsigned char x17 = xi[17];
 
       unsigned char o = x0 ^ '5';
       o ^= x1 ^ '0';

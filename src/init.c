@@ -12,6 +12,7 @@ extern SEXP C_const_nchar(SEXP);
 extern SEXP C_Decode2(SEXP, SEXP);
 extern SEXP C_Encode2(SEXP, SEXP);
 extern SEXP C_EncodeDateTime(SEXP, SEXP);
+extern SEXP C_fmt_datetime(SEXP);
 extern SEXP C_isLogical(SEXP);
 extern SEXP C_rawBrack(SEXP, SEXP);
 extern SEXP C_TabulateIntRaw(SEXP, SEXP);
@@ -35,6 +36,7 @@ extern SEXP CEncodeYN(SEXP);
 extern SEXP Cfast_nchar(SEXP);
 extern SEXP Cfilter_2raw(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP CFilter_STE_in(SEXP, SEXP, SEXP);
+extern SEXP Cfmt_datetime(SEXP);
 extern SEXP Cgrepl_09(SEXP);
 extern SEXP Cgrepl_ClusterCategory(SEXP, SEXP);
 extern SEXP Cgsub_09(SEXP);
@@ -52,6 +54,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"C_Decode2",                       (DL_FUNC) &C_Decode2,                       2},
     {"C_Encode2",                       (DL_FUNC) &C_Encode2,                       2},
     {"C_EncodeDateTime",                (DL_FUNC) &C_EncodeDateTime,                2},
+    {"C_fmt_datetime",                  (DL_FUNC) &C_fmt_datetime,                  1},
     {"C_isLogical",                     (DL_FUNC) &C_isLogical,                     1},
     {"C_rawBrack",                      (DL_FUNC) &C_rawBrack,                      2},
     {"C_TabulateIntRaw",                (DL_FUNC) &C_TabulateIntRaw,                2},
@@ -75,6 +78,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"Cfast_nchar",                     (DL_FUNC) &Cfast_nchar,                     1},
     {"Cfilter_2raw",                    (DL_FUNC) &Cfilter_2raw,                    5},
     {"CFilter_STE_in",                  (DL_FUNC) &CFilter_STE_in,                  3},
+    {"Cfmt_datetime",                   (DL_FUNC) &Cfmt_datetime,                   1},
     {"Cgrepl_09",                       (DL_FUNC) &Cgrepl_09,                       1},
     {"Cgrepl_ClusterCategory",          (DL_FUNC) &Cgrepl_ClusterCategory,          2},
     {"Cgsub_09",                        (DL_FUNC) &Cgsub_09,                        1},

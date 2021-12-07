@@ -136,6 +136,7 @@ SEXP C_yyyy_mm_dd(SEXP xx) {
 #define UTC_2021_ZERO 1609459200
 #define UTC_2022_ZERO 1640995200
 
+
 const static int UTC_2020_MONTHS[12] = {1577836800, 1580515200, 1583020800,
                                         1585699200, 1588291200, 1590969600,
                                         1593561600, 1596240000, 1598918400,
@@ -254,7 +255,155 @@ int datetime_UTC(const char * x, int n) {
   return NA_INTEGER;
 }
 
+#define fmt_YYYY_MM_DD_HHcMMcSS__pOFFSET 1
+#define fmt_YYYY_MMDD_HHcMMcSS__pOFFSET 2
+
+unsigned int char2type(char x) {
+  if (isdigit(x)) {
+    return 1;
+  }
+  if (x == '+') {
+    return 2;
+  }
+  if (ispunct(x)) {
+    return 3;
+  }
+  return 0;
+}
+
+
+
+unsigned int fmt_datetime(const char * x, int n) {
+  unsigned int o = 0;
+  unsigned int b = 4;
+  switch(n) {
+  case 34: {
+  // "2021-09-16 12:51:45.0000000 +00:00"
+  for (int j = 4; j < 34; ++j) {
+    o += char2type(x[j]);
+    o <<= 2;
+  }
+}
+    break;
+
+  }
+  return o;
+}
+
+SEXP C_fmt_datetime(SEXP x) {
+  R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (xp[i] == NA_STRING) {
+      ansp[i] = NA_INTEGER;
+      continue;
+    }
+    const char * xi = CHAR(xp[i]);
+    int n = length(xp[i]);
+    ansp[i] = fmt_datetime(xi, n);
+  }
+  UNPROTECT(1);
+  return ans;
+}
+
+static int xoffset(const char * x, const int n, int j0) {
+  for (int j = j0; j < n - 4; ++j) {
+    char xj = x[j];
+    if (xj == '+' || xj == '-') {
+      int o = 10 * (x[j + 1] - '0') + (x[j + 2] - '0');
+      o *= 60;
+      if (isdigit(x[j + 3])) {
+        o += 10 * (x[j + 3] - '0') + (x[j + 4] - '0');
+      } else if (x[j + 3] == ':' && j + 5 < n) {
+        o += 10 * (x[j + 4] - '0') + (x[j + 5] - '0');
+      }
+      o *= 60;
+      return xj == '-' ? -o : o;
+    }
+  }
+  return 0;
+}
+
+
+
+static void loc09(int YMD_HMS[6], const char * x, int n) {
+  YMD_HMS[0] = 0;
+  for (int j = 4, k = 1; (j < n && k < 6); ++j) {
+    if (isdigit(x[j])) {
+      YMD_HMS[k] = j;
+      ++k;
+      ++j;
+    }
+  }
+}
+
+static int datetime_const(int YMD_HMS[6], const char * x, const int n0) {
+  datetime2020 O;
+  O.yr2020 = x[3] - '0';
+  O.month = (x[YMD_HMS[1]] == '1' ? 10 : 0) + (x[YMD_HMS[1] + 1] - '0');
+  O.day = 10 * (x[YMD_HMS[2]] - '0') + (x[YMD_HMS[2] + 1] - '0');
+  O.hour = 10 * (x[YMD_HMS[3]] - '0') + (x[YMD_HMS[3] + 1] - '0');
+  O.minute = 10 * (x[YMD_HMS[4]] - '0') + (x[YMD_HMS[4] + 1] - '0');
+  O.second = 10 * (x[YMD_HMS[5]] - '0') + (x[YMD_HMS[5] + 1] - '0');
+  switch(x[3]) {
+  case '0':
+    return datetime2020i(O);
+  case '1':
+    return datetime2021i(O);
+  case '2':
+    return datetime2022i(O);
+    break;
+  }
+  return NA_INTEGER;
+}
+
+static int joffset(const char * x, const int n0) {
+  for (int j = 8; j < n0; ++j) {
+    if (x[j] == '+' || x[j] == '-') {
+      return j;
+    }
+  }
+  return 0; // # nocov
+}
+
+
+
+SEXP yyyy_mm_dd_HHMMSS_UTC_const_nchar(SEXP x, const int n0) {
+  R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+  const char * x0 = CHAR(xp[0]);
+  int fmt = 0;
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+  const int offset0 = xoffset(x0, n0, 8);
+  const int offsetj = offset0 ? joffset(x0, n0) : 0;
+  int YMD_HMS[6] = {0};
+  loc09(YMD_HMS, x0, n0);
+
+  if (offsetj) {
+    for (R_xlen_t i = 0; i < N; ++i) {
+      const char * x = CHAR(xp[i]);
+      const int n0 = length(xp[i]);
+      int anspi = datetime_const(YMD_HMS, x, n0);
+      int offseti = xoffset(x, n0, offsetj);
+      ansp[i] = anspi - offseti; // subtract the displayed offset e.g. +11:00
+    }
+  } else {
+    for (R_xlen_t i = 0; i < N; ++i) {
+      ansp[i] = datetime_const(YMD_HMS, CHAR(xp[i]), length(xp[i]));
+    }
+  }
+  UNPROTECT(1);
+  return ans;
+}
+
 SEXP C_yyyy_mm_dd_HHMMSS_UTC(SEXP xx) {
+  int nchar_const = is_const_nchar(xx);
+  if (nchar_const > 0) {
+    return yyyy_mm_dd_HHMMSS_UTC_const_nchar(xx, nchar_const);
+  }
   R_xlen_t N = xlength(xx);
   const SEXP * xp = STRING_PTR(xx);
   SEXP ans = PROTECT(allocVector(INTSXP, N));

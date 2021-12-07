@@ -27,4 +27,7 @@ bool isntRaw(SEXP x);
 bool isntRawOrNull(SEXP x);
 int isntEquiInt(SEXP x, SEXP y);
 
+// Cfast_nchar
+int is_const_nchar(SEXP x);
+
 #endif

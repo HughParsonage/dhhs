@@ -481,11 +481,12 @@ SEXP C_Encode2(SEXP x, SEXP y) {
 
   for (R_xlen_t i = 0; i < N; ++i) {
     int n = length(xp[i]);
+    const char * xi = CHAR(xp[i]);
     if (n != 18) {
-      ansp[i] = atoi(xp[i]);
+      ansp[i] = atoi(xi);
       continue;
     }
-    const char * xi = CHAR(xp[i]);
+
     unsigned int o = 0;
 
     o *= n00;

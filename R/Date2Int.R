@@ -42,3 +42,13 @@ yyyymmdd_HHMMSS_UTC <- function(x) {
 }
 
 
+fmt_datetime <- function(x) {
+  .Call("C_fmt_datetime", x, PACKAGE = packageName())
+}
+
+Cfmt_datetime_ <- function(x) {
+  .Call("Cfmt_datetime", x, PACKAGE = packageName())
+}
+
+
+
