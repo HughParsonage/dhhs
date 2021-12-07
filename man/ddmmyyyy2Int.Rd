@@ -3,18 +3,26 @@
 \name{ddmmyyyy2Int}
 \alias{ddmmyyyy2Int}
 \alias{yyyymmdd2Int}
+\alias{yyyymmdd_HHMMSS_UTC}
 \title{Convert a date to a standard integer}
 \usage{
 ddmmyyyy2Int(x)
 
 yyyymmdd2Int(x)
+
+yyyymmdd_HHMMSS_UTC(x)
 }
 \arguments{
-\item{x}{A date in \code{dd/mm/YYYY} format.}
+\item{x}{A character vector, represeting a date
+ in \code{dd/mm/YYYY} format (\code{ddmmyyyy2Int}) or
+\code{YYYY-mm-dd} format (\code{yyyymmdd2Int}), or a date time (for \code{yyyymmdd_HHMMSS_UTC}).}
 }
 \value{
 An integer, equivalent to \code{as.integer(as.Date(x, format))}
 for the format matching dd/mm/YYYY.
+
+For \code{yyyymmdd_HHMMSS_UTC}, an integer vector the number of seconds
+since the epoch.
 }
 \description{
 For efficient memory consumption
@@ -23,4 +31,9 @@ For efficient memory consumption
 Missing values are mapped to \code{NA_integer_} as would be expected,
 but so too are dates not in the above format, including for example
 1/2/2000 (no leading zeroes).
+}
+\examples{
+ddmmyyyy2Int("02/02/2020")
+yyyymmdd_HHMMSS_UTC("2021-05-05 00:55:55")
+
 }

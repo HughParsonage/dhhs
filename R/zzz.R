@@ -77,7 +77,7 @@
                               "Aged care or disability worker", "Allied health", "Dental professional",
                               "Medical imaging professional", "Midwife", "Other healthcare worker",
                               "Paramedic or patient transport officer", "Pharmacist"))
-  hash_assign("HealthCareTable", HealthCareTable)
+  assign("HealthCareTable", HealthCareTable, envir = dhhs_env)
 
   uDiedDueToNotifiableCondition <-
     c(NA, "Alive", "Died due to the notifiable condition", "Died from other/unknown causes",

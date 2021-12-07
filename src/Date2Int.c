@@ -399,6 +399,49 @@ SEXP yyyy_mm_dd_HHMMSS_UTC_const_nchar(SEXP x, const int n0) {
   return ans;
 }
 
+R_xlen_t which_startsWithout202(const SEXP * xp, R_xlen_t N, const bool narm) {
+  if (narm) {
+    for (R_xlen_t i = 0; i < N; ++i) {
+      if (xp[i] == NA_STRING) {
+        continue;
+      }
+      const char * xi = CHAR(xp[i]);
+      bool other = (xi[0] != '2') || (xi[1] != '0') || (xi[2] != '2');
+      if (other) {
+        return i + 1;
+      }
+    }
+  } else {
+    for (R_xlen_t i = 0; i < N; ++i) {
+      if (xp[i] == NA_STRING) {
+        return i + 1;
+      }
+      const char * xi = CHAR(xp[i]);
+      bool other = (xi[0] != '2') || (xi[1] != '0') || (xi[2] != '2');
+      if (other) {
+        return i + 1;
+      }
+    }
+  }
+  return 0;
+}
+
+SEXP Ccheck_startsWith202(SEXP x) {
+  R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (xp[i] == NA_STRING) {
+      continue;
+    }
+    const char * xi = CHAR(xp[i]);
+    bool other = (xi[0] != '2') || (xi[1] != '0') || (xi[2] != '2');
+    if (other) {
+      error("At position %lld string did not start with 202.", i);
+    }
+  }
+  return R_NilValue;
+}
+
 SEXP C_yyyy_mm_dd_HHMMSS_UTC(SEXP xx) {
   int nchar_const = is_const_nchar(xx);
   if (nchar_const > 0) {

@@ -18,6 +18,8 @@ encode_ClassificationAcquired <- function(Classification, Acquired) {
 #' @rdname encode_ClassificationAcquired
 #' @export
 decode_ClassificationAcquired <- function(x) {
+  uClassifications <- get_dhhs("uClassification")
+  uAcquired <- get_dhhs("uAcquired")
   list(Classification = uClassifications[bitwAnd(x, 15L)],
        Acquired = uAcquired[bitwShiftR(x, 16L)])
 }

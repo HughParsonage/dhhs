@@ -1,6 +1,6 @@
 #include "dhhs.h"
 
-inline int c0(int x) {
+int c0(int x) {
   return x == NA_INTEGER ? 0 : x;
 }
 
