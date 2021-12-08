@@ -31,7 +31,6 @@ extern SEXP CEncode_fwalnum(SEXP, SEXP);
 extern SEXP CEncode_RecordID_2109(SEXP);
 extern SEXP Cencode_State(SEXP, SEXP);
 extern SEXP CEncode3202(SEXP);
-extern SEXP CEncodeClassificationAcquired(SEXP, SEXP);
 extern SEXP CEncodeYN(SEXP);
 extern SEXP Cfast_nchar(SEXP);
 extern SEXP Cfilter_2raw(SEXP, SEXP, SEXP, SEXP, SEXP);
@@ -72,7 +71,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"CEncode_RecordID_2109",           (DL_FUNC) &CEncode_RecordID_2109,           1},
     {"Cencode_State",                   (DL_FUNC) &Cencode_State,                   2},
     {"CEncode3202",                     (DL_FUNC) &CEncode3202,                     1},
-    {"CEncodeClassificationAcquired",   (DL_FUNC) &CEncodeClassificationAcquired,   2},
     {"CEncodeYN",                       (DL_FUNC) &CEncodeYN,                       1},
     {"Cfast_nchar",                     (DL_FUNC) &Cfast_nchar,                     1},
     {"Cfilter_2raw",                    (DL_FUNC) &Cfilter_2raw,                    5},

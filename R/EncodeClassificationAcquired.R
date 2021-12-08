@@ -12,7 +12,9 @@
 #' @export
 
 encode_ClassificationAcquired <- function(Classification, Acquired) {
-  .Call("CEncodeClassificationAcquired", Classification, Acquired, PACKAGE = packageName())
+  eC <- encode_Classification(Classification)
+  eA <- encode_Acquired(Acquired)
+  as.integer(eC) + 16L * as.integer(eA)
 }
 
 #' @rdname encode_ClassificationAcquired
@@ -21,7 +23,7 @@ decode_ClassificationAcquired <- function(x) {
   uClassifications <- get_dhhs("uClassification")
   uAcquired <- get_dhhs("uAcquired")
   list(Classification = uClassifications[bitwAnd(x, 15L)],
-       Acquired = uAcquired[bitwShiftR(x, 16L)])
+       Acquired = uAcquired[(x %/% 16L)])
 }
 
 encode_Classification <- function(x) {
