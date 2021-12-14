@@ -6,7 +6,15 @@ test_that("ddmmyyyy2Int works", {
   dates_ddmmyyyy <- format(dates, "%d/%m/%Y")
   expect_identical(ddmmyyyy2Int(dates_ddmmyyyy),
                    as.integer(dates))
+  expect_equal(ddmmyyyy2Int("foo", NA, "04/04/2021"),
+               c(NA, NA, as.integer(as.Date("2021-04-04"))))
 
+})
+
+test_that("yyyymmdd", {
+  x <- structure(c(18387, 18947, 19074, 18741, 19161, 18700), class = "Date")
+  xf <- format(x, "%Y-%m-%d")
+  expect_equal(yyyymmdd2Int(xf), as.integer(x))
 })
 
 test_that("yyyymmdd_HHMMSS_UTC works", {
