@@ -74,8 +74,20 @@ test_that("yyyymmdd_HHMMSS_UTC works", {
 
 
 test_that("yyyymmdd_HHMMSS_SYD works", {
+  library(data.table)
+  expect_error(yyyymmdd_HHMMSS_SYD(`+`), "builtin")
+  expect_equal(yyyymmdd_HHMMSS_SYD("2021-01-01 12:00:00"),
+               as.integer(as.POSIXct("2021-01-01 12:00:00", tz = "Australia/Sydney")))
   expect_equal(yyyymmdd_HHMMSS_SYD("2022-01-01 12:00:00"),
                as.integer(as.POSIXct("2022-01-01 12:00:00", tz = "Australia/Sydney")))
+
+  xx <- seq.POSIXt(as.POSIXct("2021-12-01 00:15:00", tz = "Australia/Sydney"),
+                   as.POSIXct("2022-12-21 00:15:00", tz = "Australia/Sydney"),
+                   length.out = 10e3 + 1)
+  x <- xx[hour(xx) > 5]  # avoid daylight savings shennanigans
+  expect_equal(yyyymmdd_HHMMSS_SYD(as.character(x)),
+               as.integer(x))
+
 })
 
 
