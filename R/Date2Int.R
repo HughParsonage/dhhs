@@ -46,13 +46,33 @@ yyyymmdd_HHMMSS_UTC <- function(x) {
   if (inherits(x, "POSIXct")) {
     return(as.integer(x))
   }
-  .Call("C_yyyy_mm_dd_HHMMSS_UTC", x, PACKAGE = packageName())
+  .Call("C_yyyymmdd_HHMMSS_UTC", x, PACKAGE = packageName())
 }
+
+#' @rdname ddmmyyyy2Int
+#' @export
+yyyymmdd_HHMMSS_SYD <- function(x, y = NULL) {
+  .Call("C_yyyymmdd_HHMMSS_SYD", x, y, PACKAGE = packageName())
+}
+
 
 check_startsWith202 <- function(x) {
   .Call("Ccheck_startsWith202", x, PACKAGE = packageName())
 }
 
+
+isnt_HHcMMcSS <- function(x, m = 0L) {
+  .Call("C_isnt_HHcMMcSS", x, m, PACKAGE = packageName())
+}
+
+minsSinceMidnight <- function(x, round_mins = 10L) {
+  .Call("C_basicTime", x, round_mins, PACKAGE = packageName())
+}
+
+Seconds2String <- function(x) {
+  stopifnot(is.integer(x), length(x) == 1, !is.na(x), x > 0)
+  .Call("C_Seconds2String", x, PACKAGE = "dhhs")
+}
 
 
 

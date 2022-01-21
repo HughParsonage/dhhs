@@ -4,6 +4,7 @@
 \alias{ddmmyyyy2Int}
 \alias{yyyymmdd2Int}
 \alias{yyyymmdd_HHMMSS_UTC}
+\alias{yyyymmdd_HHMMSS_SYD}
 \title{Convert a date to a standard integer}
 \usage{
 ddmmyyyy2Int(x)
@@ -11,6 +12,8 @@ ddmmyyyy2Int(x)
 yyyymmdd2Int(x)
 
 yyyymmdd_HHMMSS_UTC(x)
+
+yyyymmdd_HHMMSS_SYD(x, y = NULL)
 }
 \arguments{
 \item{x}{A character vector, represeting a date

@@ -19,6 +19,22 @@ int is_leap_year(int year) {
   return 1;
 }
 
+int month2c(char m1, char m2) {
+  if (m1 == '1') {
+    if (m2 == '0') {
+      return 10;
+    }
+    if (m2 == '1') {
+      return 11;
+    }
+    if (m2 == '2') {
+      return 12;
+    }
+  }
+  return isdigit(m2) ? m2 - '0' : 1;
+
+}
+
 bool endsWith2021(const char * x) {
   return x[9] == '1' && x[6] == '2' && x[7] == '0' && x[8] == '2';
 }
@@ -149,7 +165,62 @@ const static int UTC_2022_MONTHS[12] = {1640995200, 1643673600, 1646092800,
                                         1648771200, 1651363200, 1654041600,
                                         1656633600, 1659312000, 1661990400,
                                         1664582400, 1667260800, 1669852800};
+const static int SYD_2020_MONTHS[12] = {1577797200, 1580475600, 1582981200,
+                                        1585659600, 1588255200, 1590933600,
+                                        1593525600, 1596204000, 1598882400,
+                                        1601474400, 1604149200, 1606741200};
+const static int SYD_2021_MONTHS[12] = {1609419600, 1612098000, 1614517200,
+                                        1617195600, 1619791200, 1622469600,
+                                        1625061600, 1627740000, 1630418400,
+                                        1633010400, 1635685200, 1638277200};
+const static int SYD_2022_MONTHS[12] = {1640955600, 1643634000, 1646053200,
+                                        1648731600, 1651327200, 1654005600,
+                                        1656597600, 1659276000, 1661954400,
+                                        1664546400, 1667221200, 1669813200};
 
+const static int SYD_2020_YDAY_DAYLIGHT[2] = {96, 278};
+const static int SYD_2021_YDAY_DAYLIGHT[2] = {94, 276};
+const static int SYD_2022_YDAY_DAYLIGHT[2] = {94, 275};
+
+int adjust_syd_daylight(int y, int m, int d, int h) {
+  int o = 0;
+  switch(y) {
+  case 0:
+    if (m == 4 && d >= 4) {
+      if (d > 4 || h >= 3) {
+        o += 60;
+      }
+    } else if (m == 10 && d >= 5) {
+      if (d > 5 || h >= 3) {
+        o -= 60;
+      }
+    }
+    break;
+  case 1:
+    if (m == 4 && d >= 4) {
+      if (d > 4 || h >= 3) {
+        o += 60;
+      }
+    } else if (m == 10 && d >= 3) {
+      if (d > 3 || h >= 3) {
+        o -= 60;
+      }
+    }
+    break;
+  case 2:
+    if (m == 4 && d >= 3) {
+      if (d > 3 || h >= 3) {
+        o += 60;
+      }
+    } else if (m == 10 && d >= 2) {
+      if (d > 2 || h >= 3) {
+        o -= 60;
+      }
+    }
+    break;
+  }
+  return o;
+}
 
 typedef struct  {
   unsigned int yr2020 : 3;
@@ -168,6 +239,49 @@ static datetime2020 set_datetime2020(int n) {
   O.hour = 0;
   O.minute = 0;
   O.day = 0;
+  return O;
+}
+
+static datetime2020 datetime2020_from_int(int x) {
+  datetime2020 O;
+  O.yr2020 = 2;
+  O.month = 12;
+  int x_if_0101 = SYD_2022_MONTHS[0]; // value of x if at midnight at start of month.
+  // first determine the year and month
+  if (x < SYD_2022_MONTHS[0]) {
+    if (x < SYD_2021_MONTHS[0]) {
+      O.yr2020 = 0;
+      for (int m = 1; m < 11; ++m) {
+        if (x < SYD_2020_MONTHS[m]) {
+          O.month = m;
+          x_if_0101 = SYD_2020_MONTHS[m - 1];
+          break;
+        }
+      }
+    } else {
+      O.yr2020 = 1;
+      for (int m = 1; m < 11; ++m) {
+        if (x < SYD_2021_MONTHS[m]) {
+          O.month = m;
+          x_if_0101 = SYD_2021_MONTHS[m - 1];
+          break;
+        }
+      }
+    }
+  } else {
+    for (int m = 1; m < 11; ++m) {
+      if (x < SYD_2022_MONTHS[m]) {
+        O.month = m;
+        x_if_0101 = SYD_2022_MONTHS[m - 1];
+        break;
+      }
+    }
+  }
+  O.day = (x - x_if_0101)/ 86400 + 1;
+  O.hour = (x - (x_if_0101 + (O.day - 1) * 86400)) / 3600;
+  // O.minute = (x - (x_if_0101 + (O.day - 1) * 86400 + O.hour * 3600)) / 60;
+  O.minute = 0;
+  O.second = 0;
   return O;
 }
 
@@ -232,6 +346,30 @@ int datetime2022i(datetime2020 O) {
   o += 3600 * O.hour;
   o += 60 * O.minute;
   o += O.second;
+  return o;
+}
+
+int datetimei_syd(datetime2020 O) {
+  const int m = O.month;
+  const int d = O.day;
+  const int h = O.hour;
+  int o = 0;
+  switch (O.yr2020) {
+  case 0:
+    o += SYD_2020_MONTHS[m - 1] + adjust_syd_daylight(0, m, d, h);
+    break;
+  case 1:
+    o += SYD_2021_MONTHS[m - 1] + adjust_syd_daylight(1, m, d, h);
+    break;
+  default:
+    o += SYD_2022_MONTHS[m - 1] + adjust_syd_daylight(2, m, d, h);
+    break;
+  }
+  o += 86400 * (d - 1);
+  o += 3600 * h;
+  o += 60 * O.minute;
+  o += O.second;
+
   return o;
 }
 
@@ -370,6 +508,10 @@ static int joffset(const char * x, const int n0) {
 
 
 
+
+
+
+
 SEXP yyyy_mm_dd_HHMMSS_UTC_const_nchar(SEXP x, const int n0) {
   R_xlen_t N = xlength(x);
   const SEXP * xp = STRING_PTR(x);
@@ -442,7 +584,7 @@ SEXP Ccheck_startsWith202(SEXP x) {
   return R_NilValue;
 }
 
-SEXP C_yyyy_mm_dd_HHMMSS_UTC(SEXP xx) {
+SEXP C_yyyymmdd_HHMMSS_UTC(SEXP xx) {
   int nchar_const = is_const_nchar(xx);
   if (nchar_const > 0) {
     return yyyy_mm_dd_HHMMSS_UTC_const_nchar(xx, nchar_const);
@@ -459,6 +601,189 @@ SEXP C_yyyy_mm_dd_HHMMSS_UTC(SEXP xx) {
   UNPROTECT(1);
   return ans;
 }
+
+int datetime_UTC2(const char * x, const char * y, int nx, int ny) {
+  datetime2020 O;
+  O.yr2020 = x[3] - '0';
+  O.month = month2c(x[5], x[6]);
+  O.day = 10 * (x[8] - '0') + (x[9] - '0');
+  O.hour = (y[0] == '1' ? 10 : 0) + (y[1] - '0');
+  O.minute = 10 * (y[3] - '0') + (y[4] - '0');
+  O.second = 0;
+  if (y[6] != '0' || y[7] != '0') {
+    O.second = 10 * (y[6] - '0') + (y[7] - '0');
+  }
+  switch(x[3]) {
+  case '0':
+    return datetime2020i(O);
+  case '1':
+    return datetime2021i(O);
+  case '2':
+    return datetime2022i(O);
+  default:
+    return NA_INTEGER;
+  }
+  return NA_INTEGER; // # nocov
+}
+
+int datetime_SYD2(const char * x, const char * y, int nx, int ny) {
+  int yr = x[3] - '0';
+  int mm = 10 * (x[5] - '0') + (x[6] - '0');
+  int dd = 10 * (x[8] - '0') + (x[9] - '0');
+  int HH = 10 * (y[0] - '0') + (y[1] - '0');
+  int MM = 10 * (y[3] - '0') + (y[4] - '0');
+  int SS = 10 * (y[6] - '0') + (y[7] - '0');
+  int o = 0;
+  switch(yr) {
+  case 0:
+    o += SYD_2020_MONTHS[mm - 1];
+    break;
+  case 1:
+    o += SYD_2021_MONTHS[mm - 1];
+    break;
+  default:
+    o += SYD_2022_MONTHS[mm - 1];
+  }
+  o += 86000 * (dd - 1);
+  o += 3600 * HH;
+  o += 60 * MM;
+  o += SS;
+  o += adjust_syd_daylight(yr, mm, dd, HH);
+  return o;
+}
+
+SEXP do_yyyymmdd_HHMMSS_SYD(SEXP x) {
+  R_xlen_t N = xlength(x);
+  if (!isString(x)) {
+    error("x was type '%s' but must be character.", type2char(TYPEOF(x)));
+  }
+  const SEXP * xp = STRING_PTR(x);
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+
+  for (R_xlen_t i = 0; i < N; ++i) {
+    int n = length(xp[i]);
+    if (n < 10) {
+      ansp[i] = NA_INTEGER;
+      continue;
+    }
+    const char * xi = CHAR(xp[i]);
+    datetime2020 O = char2datetime_UTC(xi, n);
+    ansp[i] = datetimei_syd(O);
+  }
+  UNPROTECT(1);
+  return ans;
+
+}
+
+
+SEXP C_yyyymmdd_HHMMSS_SYD(SEXP x, SEXP y) {
+  if (y == R_NilValue) {
+    return do_yyyymmdd_HHMMSS_SYD(x);
+  }
+  return R_NilValue;
+
+}
+
+static unsigned int colon258(unsigned int * colon, const char * x) {
+  unsigned int x3 = x[2], x5 = x[5];
+  unsigned int c3 = colon[x3], c5 = colon[x5];
+  return c3 + c5;
+}
+
+static unsigned int nondigits258(unsigned int * nondigits, const char * x) {
+  unsigned int o = 0;
+  for (int i = 0; i < 8; ++i) {
+    o += nondigits[(unsigned int)x[i]];
+  }
+  return o;
+}
+
+
+
+
+SEXP C_isnt_HHcMMcSS(SEXP x, SEXP mm) {
+  if (!isString(x)) {
+    return ScalarLength(1);
+  }
+  R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+
+  // Verify HH:MM:SS
+  unsigned int colon[256] = {0};
+  const unsigned int colon_uc = (unsigned char)':';
+  for (int i = 0; i < 256; ++i) {
+    colon[i] = (i == colon_uc) ? 0 : 1;
+  }
+  unsigned int nondigits[256] = {0};
+  for (int i = 0; i < 256; ++i) {
+    nondigits[i] = !isdigit((unsigned char)i);
+  }
+  nondigits[colon_uc] = 0;
+
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (8 != length(xp[i])) {
+      return ScalarLength(i + 1);
+    }
+    const char * xi = CHAR(xp[i]);
+    unsigned int o = nondigits258(nondigits, xi) + colon258(colon, xi);
+    if (o) {
+      return ScalarLength(i + 1);
+    }
+
+  }
+  return ScalarInteger(0);
+}
+
+
+SEXP C_basicTime(SEXP x, SEXP Round) {
+  // round to nearest minute
+  if (!isString(x)) {
+    error("`x` was type '%s' but must be a STRSXP", type2char(TYPEOF(x)));
+  }
+  R_xlen_t N = xlength(x);
+  const SEXP * xp = STRING_PTR(x);
+  const int round = asInteger(Round);
+  SEXP ans = PROTECT(allocVector(INTSXP, N));
+  int * restrict ansp = INTEGER(ans);
+  for (R_xlen_t i = 0; i < N; ++i) {
+    if (8 != length(xp[i])) {
+      ansp[i] = NA_INTEGER;
+      continue;
+    }
+    const char * xi = CHAR(xp[i]);
+    int o = 0;
+    int HH = 10 * (xi[0] - '0') + (xi[1] - '0');
+    o += HH * 60;
+    if (round >= 60) {
+      ansp[i] = o;
+      continue;
+    }
+    if (round == 10) {
+      o += 10 * (xi[3] - '0');
+      ansp[i] = o;
+      continue;
+    }
+  }
+  UNPROTECT(1);
+  return ans;
+}
+
+
+SEXP C_Seconds2String(SEXP x) {
+  R_xlen_t N = xlength(x);
+  if (N <= 0) {
+    return R_NilValue;
+  }
+  const int * xp = INTEGER(x);
+  int ox = xp[0];
+  datetime2020 O = datetime2020_from_int(ox);
+  Rprintf("%d-%d-%d %d:%d\n", O.yr2020 + 2020, O.month, O.day, O.hour, O.minute, O.second);
+  return R_NilValue;
+
+
+}
+
 
 
 

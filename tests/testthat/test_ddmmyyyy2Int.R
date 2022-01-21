@@ -6,7 +6,7 @@ test_that("ddmmyyyy2Int works", {
   dates_ddmmyyyy <- format(dates, "%d/%m/%Y")
   expect_identical(ddmmyyyy2Int(dates_ddmmyyyy),
                    as.integer(dates))
-  expect_equal(ddmmyyyy2Int("foo", NA, "04/04/2021"),
+  expect_equal(ddmmyyyy2Int(c("foo", NA, "04/04/2021")),
                c(NA, NA, as.integer(as.Date("2021-04-04"))))
 
 })
@@ -71,5 +71,12 @@ test_that("yyyymmdd_HHMMSS_UTC works", {
                as.integer(as.POSIXct(offsets, format = "%Y-%m-%d %H:%M:%S %z", tz = "UTC")))
 
 })
+
+
+test_that("yyyymmdd_HHMMSS_SYD works", {
+  expect_equal(yyyymmdd_HHMMSS_SYD("2022-01-01 12:00:00"),
+               as.integer(as.POSIXct("2022-01-01 12:00:00", tz = "Australia/Sydney")))
+})
+
 
 

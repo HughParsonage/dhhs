@@ -30,4 +30,7 @@ int isntEquiInt(SEXP x, SEXP y);
 // Cfast_nchar
 int is_const_nchar(SEXP x);
 
+// ScalarLength.c
+SEXP ScalarLength(R_xlen_t x);
+
 #endif

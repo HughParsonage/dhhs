@@ -34,6 +34,3 @@ do_filter_ste_in <- function(x, y, .opposite = FALSE) {
   .Call("CFilter_STE_in", x, y, FALSE, PACKAGE = packageName())
 }
 
-filter_ste_notin <- function(x, y) {
-  filter_ste_in(x, y, )
-}

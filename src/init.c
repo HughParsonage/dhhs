@@ -8,15 +8,19 @@
 */
 
 /* .Call calls */
+extern SEXP C_basicTime(SEXP, SEXP);
 extern SEXP C_const_nchar(SEXP);
 extern SEXP C_Decode2(SEXP, SEXP);
 extern SEXP C_Encode2(SEXP, SEXP);
 extern SEXP C_EncodeDateTime(SEXP, SEXP);
 extern SEXP C_isLogical(SEXP);
+extern SEXP C_isnt_HHcMMcSS(SEXP, SEXP);
 extern SEXP C_rawBrack(SEXP, SEXP);
+extern SEXP C_Seconds2String(SEXP);
 extern SEXP C_TabulateIntRaw(SEXP, SEXP);
 extern SEXP C_yyyy_mm_dd(SEXP);
-extern SEXP C_yyyy_mm_dd_HHMMSS_UTC(SEXP);
+extern SEXP C_yyyymmdd_HHMMSS_SYD(SEXP, SEXP);
+extern SEXP C_yyyymmdd_HHMMSS_UTC(SEXP);
 extern SEXP CC_Atoi(SEXP);
 extern SEXP Ccheck_startsWith202(SEXP);
 extern SEXP CClassification_filter(SEXP, SEXP);
@@ -39,6 +43,7 @@ extern SEXP Cgrepl_09(SEXP);
 extern SEXP Cgrepl_ClusterCategory(SEXP, SEXP);
 extern SEXP Cgsub_09(SEXP);
 extern SEXP CJ_Classification_RecordID_Date(SEXP, SEXP, SEXP, SEXP);
+extern SEXP Cmatch_fwid(SEXP, SEXP, SEXP);
 extern SEXP Cmax_nchar(SEXP);
 extern SEXP CStandardMobile(SEXP, SEXP, SEXP);
 extern SEXP Cuint2dbl(SEXP);
@@ -48,15 +53,19 @@ extern SEXP Cwhich_isnt_int(SEXP);
 extern SEXP isntRecordID2109(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
+    {"C_basicTime",                     (DL_FUNC) &C_basicTime,                     2},
     {"C_const_nchar",                   (DL_FUNC) &C_const_nchar,                   1},
     {"C_Decode2",                       (DL_FUNC) &C_Decode2,                       2},
     {"C_Encode2",                       (DL_FUNC) &C_Encode2,                       2},
     {"C_EncodeDateTime",                (DL_FUNC) &C_EncodeDateTime,                2},
     {"C_isLogical",                     (DL_FUNC) &C_isLogical,                     1},
+    {"C_isnt_HHcMMcSS",                 (DL_FUNC) &C_isnt_HHcMMcSS,                 2},
     {"C_rawBrack",                      (DL_FUNC) &C_rawBrack,                      2},
+    {"C_Seconds2String",                (DL_FUNC) &C_Seconds2String,                1},
     {"C_TabulateIntRaw",                (DL_FUNC) &C_TabulateIntRaw,                2},
     {"C_yyyy_mm_dd",                    (DL_FUNC) &C_yyyy_mm_dd,                    1},
-    {"C_yyyy_mm_dd_HHMMSS_UTC",         (DL_FUNC) &C_yyyy_mm_dd_HHMMSS_UTC,         1},
+    {"C_yyyymmdd_HHMMSS_SYD",           (DL_FUNC) &C_yyyymmdd_HHMMSS_SYD,           2},
+    {"C_yyyymmdd_HHMMSS_UTC",           (DL_FUNC) &C_yyyymmdd_HHMMSS_UTC,           1},
     {"CC_Atoi",                         (DL_FUNC) &CC_Atoi,                         1},
     {"Ccheck_startsWith202",            (DL_FUNC) &Ccheck_startsWith202,            1},
     {"CClassification_filter",          (DL_FUNC) &CClassification_filter,          2},
@@ -79,6 +88,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"Cgrepl_ClusterCategory",          (DL_FUNC) &Cgrepl_ClusterCategory,          2},
     {"Cgsub_09",                        (DL_FUNC) &Cgsub_09,                        1},
     {"CJ_Classification_RecordID_Date", (DL_FUNC) &CJ_Classification_RecordID_Date, 4},
+    {"Cmatch_fwid",                     (DL_FUNC) &Cmatch_fwid,                     3},
     {"Cmax_nchar",                      (DL_FUNC) &Cmax_nchar,                      1},
     {"CStandardMobile",                 (DL_FUNC) &CStandardMobile,                 3},
     {"Cuint2dbl",                       (DL_FUNC) &Cuint2dbl,                       1},
